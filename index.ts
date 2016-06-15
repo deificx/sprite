@@ -3,6 +3,12 @@ var preview = <HTMLCanvasElement>document.getElementById('sprite-preview');
 var ctx: CanvasRenderingContext2D = canvas.getContext('2d');
 var ctxP: CanvasRenderingContext2D = preview.getContext('2d');
 
+enum scaleSize {
+	Small = 8,
+	Medium = 16,
+	Large = 24,
+}
+
 enum tileSize {
 	Small = 16,
 	Medium = 32,
@@ -16,8 +22,8 @@ interface RGBA {
 	a?: number,
 }
 
+var scale: number = scaleSize.Medium;
 var size: number = tileSize.Medium;
-var scale: number = 20;
 
 function rgb(color: RGBA) {
 	return 'rgb(' + color.r + ', ' + color.g + ', ' + color.b + ')';
@@ -77,16 +83,37 @@ class Sprite {
 
 var sprite = new Sprite(size);
 
-function setCanvaseSize(newSize: tileSize) {
-	size = newSize;
+function resetCanvas() {
 	canvas.width = size * scale;
 	canvas.height = size * scale;
 	preview.width = size;
 	preview.height = size;
-	sprite = new Sprite(size);
 }
 
-setCanvaseSize(tileSize.Medium);
+resetCanvas();
+
+var scaleOptions = <HTMLSelectElement>document.getElementById('option-scale');
+var scaleOptionSmall = <HTMLOptionElement>document.createElement('option');
+var scaleOptionMedium = <HTMLOptionElement>document.createElement('option');
+var scaleOptionLarge = <HTMLOptionElement>document.createElement('option');
+
+scaleOptionSmall.value = scaleSize.Small.toString();
+scaleOptionSmall.innerHTML = 'Small';
+scaleOptions.appendChild(scaleOptionSmall);
+
+scaleOptionMedium.value = scaleSize.Medium.toString();
+scaleOptionMedium.innerHTML = 'Medium';
+scaleOptions.appendChild(scaleOptionMedium);
+
+scaleOptionLarge.value = scaleSize.Large.toString();
+scaleOptionLarge.innerHTML = 'Large';
+scaleOptions.appendChild(scaleOptionLarge);
+
+scaleOptions.selectedIndex = 1;
+scaleOptions.onchange = function () {
+	scale = this.value;
+	resetCanvas();
+}
 
 var sizeOptions = <HTMLSelectElement>document.getElementById('option-size');
 var sizeOptionSmall = <HTMLOptionElement>document.createElement('option');
@@ -107,7 +134,9 @@ sizeOptions.appendChild(sizeOptionLarge);
 
 sizeOptions.selectedIndex = 1;
 sizeOptions.onchange = function() {
-	setCanvaseSize(this.value);
+	size = this.value;
+	resetCanvas();
+	sprite = new Sprite(size);
 }
 
 function renderGrid() {

@@ -2,14 +2,20 @@ var canvas = document.getElementById('sprite-editor');
 var preview = document.getElementById('sprite-preview');
 var ctx = canvas.getContext('2d');
 var ctxP = preview.getContext('2d');
+var scaleSize;
+(function (scaleSize) {
+    scaleSize[scaleSize["Small"] = 8] = "Small";
+    scaleSize[scaleSize["Medium"] = 16] = "Medium";
+    scaleSize[scaleSize["Large"] = 24] = "Large";
+})(scaleSize || (scaleSize = {}));
 var tileSize;
 (function (tileSize) {
     tileSize[tileSize["Small"] = 16] = "Small";
     tileSize[tileSize["Medium"] = 32] = "Medium";
     tileSize[tileSize["Large"] = 64] = "Large";
 })(tileSize || (tileSize = {}));
+var scale = scaleSize.Medium;
 var size = tileSize.Medium;
-var scale = 20;
 function rgb(color) {
     return 'rgb(' + color.r + ', ' + color.g + ', ' + color.b + ')';
 }
@@ -58,15 +64,31 @@ var Sprite = (function () {
     return Sprite;
 }());
 var sprite = new Sprite(size);
-function setCanvaseSize(newSize) {
-    size = newSize;
+function resetCanvas() {
     canvas.width = size * scale;
     canvas.height = size * scale;
     preview.width = size;
     preview.height = size;
-    sprite = new Sprite(size);
 }
-setCanvaseSize(tileSize.Medium);
+resetCanvas();
+var scaleOptions = document.getElementById('option-scale');
+var scaleOptionSmall = document.createElement('option');
+var scaleOptionMedium = document.createElement('option');
+var scaleOptionLarge = document.createElement('option');
+scaleOptionSmall.value = scaleSize.Small.toString();
+scaleOptionSmall.innerHTML = 'Small';
+scaleOptions.appendChild(scaleOptionSmall);
+scaleOptionMedium.value = scaleSize.Medium.toString();
+scaleOptionMedium.innerHTML = 'Medium';
+scaleOptions.appendChild(scaleOptionMedium);
+scaleOptionLarge.value = scaleSize.Large.toString();
+scaleOptionLarge.innerHTML = 'Large';
+scaleOptions.appendChild(scaleOptionLarge);
+scaleOptions.selectedIndex = 1;
+scaleOptions.onchange = function () {
+    scale = this.value;
+    resetCanvas();
+};
 var sizeOptions = document.getElementById('option-size');
 var sizeOptionSmall = document.createElement('option');
 var sizeOptionMedium = document.createElement('option');
@@ -82,7 +104,9 @@ sizeOptionLarge.innerHTML = 'Large';
 sizeOptions.appendChild(sizeOptionLarge);
 sizeOptions.selectedIndex = 1;
 sizeOptions.onchange = function () {
-    setCanvaseSize(this.value);
+    size = this.value;
+    resetCanvas();
+    sprite = new Sprite(size);
 };
 function renderGrid() {
     ctx.strokeStyle = rgba({ r: 128, g: 128, b: 128, a: 0.5 });
