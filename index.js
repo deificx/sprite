@@ -12,11 +12,14 @@ var size = tileSize.Medium;
 var scale = 20;
 var sprite = [];
 var sprites = [];
-function pixel() {
+function pixel(color) {
+    if (!color) {
+        color = {};
+    }
     return {
-        r: 0,
-        g: 255,
-        b: 0
+        r: color.r || 0,
+        g: color.g || 0,
+        b: color.b || 0
     };
 }
 for (var i = 0; i < size; i++) {
@@ -101,3 +104,25 @@ function update() {
     renderPreview();
 }
 requestAnimationFrame(update);
+function pixelate(mouseEvent) {
+    var rect = canvas.getBoundingClientRect();
+    var x = Math.floor((mouseEvent.clientX - rect.left) / scale);
+    var y = Math.floor((mouseEvent.clientY - rect.top) / scale);
+    sprite[x][y] = pixel({ r: 255, g: 255, b: 255 });
+}
+var drawing = false;
+canvas.onmousedown = function (event) {
+    drawing = true;
+    pixelate(event);
+};
+canvas.onmousemove = function (event) {
+    if (drawing) {
+        pixelate(event);
+    }
+};
+canvas.onmouseup = function (event) {
+    drawing = false;
+};
+canvas.onmouseleave = function (event) {
+    drawing = false;
+};
