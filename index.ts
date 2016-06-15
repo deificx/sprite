@@ -14,10 +14,14 @@ var scale: number = 20;
 var sprite = [];
 var sprites = [];
 
-function pixel(color) {
-	if (!color) {
-		color = {};
-	}
+interface RGBA {
+	r?: number,
+	g?: number,
+	b?: number,
+	a?: number,
+}
+
+function pixel(color: RGBA) {
 	return {
 		r: color.r || 0,
 		g: color.g || 0,
@@ -28,7 +32,11 @@ function pixel(color) {
 for (var i = 0; i < size; i++) {
 	var columns = [];
 	for (var j = 0; j < size; j++) {
-		columns.push(pixel());
+		columns.push(pixel({
+			r: 255,
+			g: 255,
+			b: 255,
+		}));
 	}
 	sprite.push(columns);
 }
@@ -67,11 +75,11 @@ sizeOptions.onchange = function() {
 	setCanvaseSize(this.value);
 }
 
-function rgb(color) {
+function rgb(color: RGBA) {
 	return 'rgb(' + color.r + ', ' + color.g + ', ' + color.b + ')';
 }
 
-function rgba(color) {
+function rgba(color: RGBA) {
 	return 'rgba(' + color.r + ', ' + color.g + ', ' + color.b + ',' + color.a + ')';
 }
 
@@ -123,11 +131,11 @@ function update() {
 
 requestAnimationFrame(update);
 
-function pixelate(mouseEvent) {
+function pixelate(mouseEvent: MouseEvent) {
 	var rect = canvas.getBoundingClientRect();
 	var x = Math.floor((mouseEvent.clientX - rect.left) / scale);
 	var y = Math.floor((mouseEvent.clientY - rect.top) / scale);
-	sprite[x][y] = pixel({ r: 255, g: 255, b: 255 });
+	sprite[x][y] = pixel({ r: 0, g: 0, b: 0 });
 }
 
 var drawing = false;

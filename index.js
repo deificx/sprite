@@ -13,9 +13,6 @@ var scale = 20;
 var sprite = [];
 var sprites = [];
 function pixel(color) {
-    if (!color) {
-        color = {};
-    }
     return {
         r: color.r || 0,
         g: color.g || 0,
@@ -25,7 +22,11 @@ function pixel(color) {
 for (var i = 0; i < size; i++) {
     var columns = [];
     for (var j = 0; j < size; j++) {
-        columns.push(pixel());
+        columns.push(pixel({
+            r: 255,
+            g: 255,
+            b: 255
+        }));
     }
     sprite.push(columns);
 }
@@ -108,7 +109,7 @@ function pixelate(mouseEvent) {
     var rect = canvas.getBoundingClientRect();
     var x = Math.floor((mouseEvent.clientX - rect.left) / scale);
     var y = Math.floor((mouseEvent.clientY - rect.top) / scale);
-    sprite[x][y] = pixel({ r: 255, g: 255, b: 255 });
+    sprite[x][y] = pixel({ r: 0, g: 0, b: 0 });
 }
 var drawing = false;
 canvas.onmousedown = function (event) {
