@@ -10,33 +10,61 @@ var tileSize;
 })(tileSize || (tileSize = {}));
 var size = tileSize.Medium;
 var scale = 20;
-var sprite = [];
-var sprites = [];
-function pixel(color) {
-    return {
-        r: color.r || 0,
-        g: color.g || 0,
-        b: color.b || 0
-    };
+function rgb(color) {
+    return 'rgb(' + color.r + ', ' + color.g + ', ' + color.b + ')';
 }
-for (var i = 0; i < size; i++) {
-    var columns = [];
-    for (var j = 0; j < size; j++) {
-        columns.push(pixel({
-            r: 255,
-            g: 255,
-            b: 255
-        }));
+function rgba(color) {
+    return 'rgba(' + color.r + ', ' + color.g + ', ' + color.b + ',' + color.a + ')';
+}
+var Sprite = (function () {
+    function Sprite(spriteSize) {
+        this.size = spriteSize;
+        this.sprite = [];
+        for (var i = 0; i < this.size; i++) {
+            var columns = [];
+            for (var j = 0; j < this.size; j++) {
+                columns.push({
+                    r: 255,
+                    g: 255,
+                    b: 255
+                });
+            }
+            this.sprite.push(columns);
+        }
     }
-    sprite.push(columns);
-}
-sprites.push(sprite);
+    Sprite.prototype.color = function (x, y) {
+        this.sprite[x][y] = { r: 0, g: 0, b: 0 };
+    };
+    Sprite.prototype.render = function () {
+        for (var i = 0; i < size; i++) {
+            for (var j = 0; j < size; j++) {
+                ctx.beginPath();
+                ctx.fillStyle = rgb(this.sprite[i][j]);
+                ctx.fillRect(i * scale, j * scale, scale, scale);
+                ctx.closePath();
+            }
+        }
+    };
+    Sprite.prototype.preview = function () {
+        for (var i = 0; i < size; i++) {
+            for (var j = 0; j < size; j++) {
+                ctxP.beginPath();
+                ctxP.fillStyle = rgb(this.sprite[i][j]);
+                ctxP.fillRect(i, j, 1, 1);
+                ctxP.closePath();
+            }
+        }
+    };
+    return Sprite;
+}());
+var sprite = new Sprite(size);
 function setCanvaseSize(newSize) {
     size = newSize;
     canvas.width = size * scale;
     canvas.height = size * scale;
     preview.width = size;
     preview.height = size;
+    sprite = new Sprite(size);
 }
 setCanvaseSize(tileSize.Medium);
 var sizeOptions = document.getElementById('option-size');
@@ -56,12 +84,6 @@ sizeOptions.selectedIndex = 1;
 sizeOptions.onchange = function () {
     setCanvaseSize(this.value);
 };
-function rgb(color) {
-    return 'rgb(' + color.r + ', ' + color.g + ', ' + color.b + ')';
-}
-function rgba(color) {
-    return 'rgba(' + color.r + ', ' + color.g + ', ' + color.b + ',' + color.a + ')';
-}
 function renderGrid() {
     ctx.strokeStyle = rgba({ r: 128, g: 128, b: 128, a: 0.5 });
     ctx.lineWidth = 1;
@@ -78,38 +100,18 @@ function renderGrid() {
         ctx.stroke();
     }
 }
-function renderSprite() {
-    for (var i = 0; i < size; i++) {
-        for (var j = 0; j < size; j++) {
-            ctx.beginPath();
-            ctx.fillStyle = rgb(sprite[i][j]);
-            ctx.fillRect(i * scale, j * scale, scale, scale);
-            ctx.closePath();
-        }
-    }
-}
-function renderPreview() {
-    for (var i = 0; i < size; i++) {
-        for (var j = 0; j < size; j++) {
-            ctxP.beginPath();
-            ctxP.fillStyle = rgb(sprite[i][j]);
-            ctxP.fillRect(i, j, 1, 1);
-            ctxP.closePath();
-        }
-    }
-}
 function update() {
     requestAnimationFrame(update);
-    renderSprite();
+    sprite.render();
     renderGrid();
-    renderPreview();
+    sprite.preview();
 }
 requestAnimationFrame(update);
 function pixelate(mouseEvent) {
     var rect = canvas.getBoundingClientRect();
     var x = Math.floor((mouseEvent.clientX - rect.left) / scale);
     var y = Math.floor((mouseEvent.clientY - rect.top) / scale);
-    sprite[x][y] = pixel({ r: 0, g: 0, b: 0 });
+    sprite.color(x, y);
 }
 var drawing = false;
 canvas.onmousedown = function (event) {

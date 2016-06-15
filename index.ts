@@ -9,11 +9,6 @@ enum tileSize {
 	Large = 64
 }
 
-var size: number = tileSize.Medium;
-var scale: number = 20;
-var sprite = [];
-var sprites = [];
-
 interface RGBA {
 	r?: number,
 	g?: number,
@@ -21,27 +16,66 @@ interface RGBA {
 	a?: number,
 }
 
-function pixel(color: RGBA) {
-	return {
-		r: color.r || 0,
-		g: color.g || 0,
-		b: color.b || 0,
-	};
+var size: number = tileSize.Medium;
+var scale: number = 20;
+
+function rgb(color: RGBA) {
+	return 'rgb(' + color.r + ', ' + color.g + ', ' + color.b + ')';
 }
 
-for (var i = 0; i < size; i++) {
-	var columns = [];
-	for (var j = 0; j < size; j++) {
-		columns.push(pixel({
-			r: 255,
-			g: 255,
-			b: 255,
-		}));
+function rgba(color: RGBA) {
+	return 'rgba(' + color.r + ', ' + color.g + ', ' + color.b + ',' + color.a + ')';
+}
+
+class Sprite {
+	size: tileSize;
+	sprite: Array<Array<RGBA>>;
+
+	constructor(spriteSize: tileSize) {
+		this.size = spriteSize;
+		this.sprite = [];
+
+		for (var i = 0; i < this.size; i++) {
+			var columns = [];
+			for (var j = 0; j < this.size; j++) {
+				columns.push({
+					r: 255,
+					g: 255,
+					b: 255,
+				});
+			}
+			this.sprite.push(columns);
+		}
 	}
-	sprite.push(columns);
+
+	color(x: number, y: number) {
+		this.sprite[x][y] = { r: 0, g: 0, b: 0 };
+	}
+
+	render() {
+		for (var i = 0; i < size; i++) {
+			for (var j = 0; j < size; j++) {
+				ctx.beginPath();
+				ctx.fillStyle = rgb(this.sprite[i][j]);
+				ctx.fillRect(i * scale, j * scale, scale, scale);
+				ctx.closePath();
+			}
+		}
+	}
+
+	preview() {
+		for (var i = 0; i < size; i++) {
+			for (var j = 0; j < size; j++) {
+				ctxP.beginPath();
+				ctxP.fillStyle = rgb(this.sprite[i][j]);
+				ctxP.fillRect(i, j, 1, 1);
+				ctxP.closePath();
+			}
+		}
+	}
 }
 
-sprites.push(sprite);
+var sprite = new Sprite(size);
 
 function setCanvaseSize(newSize: tileSize) {
 	size = newSize;
@@ -49,6 +83,7 @@ function setCanvaseSize(newSize: tileSize) {
 	canvas.height = size * scale;
 	preview.width = size;
 	preview.height = size;
+	sprite = new Sprite(size);
 }
 
 setCanvaseSize(tileSize.Medium);
@@ -75,14 +110,6 @@ sizeOptions.onchange = function() {
 	setCanvaseSize(this.value);
 }
 
-function rgb(color: RGBA) {
-	return 'rgb(' + color.r + ', ' + color.g + ', ' + color.b + ')';
-}
-
-function rgba(color: RGBA) {
-	return 'rgba(' + color.r + ', ' + color.g + ', ' + color.b + ',' + color.a + ')';
-}
-
 function renderGrid() {
 	ctx.strokeStyle = rgba({r:128, g:128, b: 128, a: 0.5});
 	ctx.lineWidth = 1;
@@ -100,33 +127,11 @@ function renderGrid() {
 	}
 }
 
-function renderSprite() {
-	for (var i = 0; i < size; i++) {
-		for (var j = 0; j < size; j++) {
-			ctx.beginPath();
-			ctx.fillStyle = rgb(sprite[i][j]);
-			ctx.fillRect(i * scale, j * scale, scale, scale);
-			ctx.closePath();
-		}
-	}
-}
-
-function renderPreview() {
-	for (var i = 0; i < size; i++) {
-		for (var j = 0; j < size; j++) {
-			ctxP.beginPath();
-			ctxP.fillStyle = rgb(sprite[i][j]);
-			ctxP.fillRect(i, j, 1, 1);
-			ctxP.closePath();
-		}
-	}
-}
-
 function update() {
 	requestAnimationFrame(update);
-	renderSprite();
+	sprite.render();
 	renderGrid();
-	renderPreview();
+	sprite.preview();
 }
 
 requestAnimationFrame(update);
@@ -135,7 +140,7 @@ function pixelate(mouseEvent: MouseEvent) {
 	var rect = canvas.getBoundingClientRect();
 	var x = Math.floor((mouseEvent.clientX - rect.left) / scale);
 	var y = Math.floor((mouseEvent.clientY - rect.top) / scale);
-	sprite[x][y] = pixel({ r: 0, g: 0, b: 0 });
+	sprite.color(x, y);
 }
 
 var drawing = false;
