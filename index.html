@@ -2,14 +2,54 @@
 <html>
 <head>
 	<title>sprite-editor</title>
+	<style type="text/css">
+		html,
+		body {
+			height: 100%;
+		}
+
+		body {
+			display: flex;
+			justify-content: space-between;
+			margin: 0;
+		}
+
+		label {
+			display: block;
+		}
+
+		select {
+			margin-bottom: 1em;
+		}
+
+		#sprite-editor {
+			margin: auto;
+		}
+
+		#sprite-editor:active {
+			cursor: default;
+		}
+
+		#sprite-preview {
+			display: block;
+			margin: 1em auto;
+		}
+
+		#toolbar {
+			background-color: #eee;
+			padding: 1em;
+		}
+	</style>
 </head>
 <body>
 	<canvas id="sprite-editor"></canvas>
-	<canvas id="sprite-preview"></canvas>
-	<label for="option-scale">Pixel Scale</label>
-	<select id="option-scale"></select>
-	<label for="option-size">Sprite size</label>
-	<select id="option-size"></select>
+	<div id="toolbar">
+		<canvas id="sprite-preview"></canvas>
+		<label for="option-scale">Pixel Scale</label>
+		<select id="option-scale"></select>
+		<label for="option-size">Sprite size</label>
+		<select id="option-size"></select>
+	</div>
 	<script src="index.js"></script>
 </body>
 </html>
