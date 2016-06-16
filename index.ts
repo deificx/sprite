@@ -34,10 +34,16 @@ function rgba(color: RGBA) {
 }
 
 class Sprite {
+	color: RGBA;
 	size: tileSize;
 	sprite: Array<Array<RGBA>>;
 
 	constructor(spriteSize: tileSize) {
+		this.color = {
+			r: 0,
+			g: 0,
+			b: 0,
+		};
 		this.size = spriteSize;
 		this.sprite = [];
 
@@ -54,9 +60,41 @@ class Sprite {
 		}
 	}
 
-	color(x: number, y: number) {
+	draw(x: number, y: number) {
 		if (typeof this.sprite[x] !== 'undefined' && typeof this.sprite[x][y] !== 'undefined') {
-			this.sprite[x][y] = { r: 0, g: 0, b: 0 };
+			this.sprite[x][y] = {
+				r: this.color.r,
+				g: this.color.g,
+				b: this.color.b
+			};
+		}
+	}
+
+	grid() {
+		ctx.strokeStyle = rgba({ r: 128, g: 128, b: 128, a: 0.5 });
+		ctx.lineWidth = 1;
+		for (var i = 0; i <= size; i++) {
+			ctx.beginPath();
+			ctx.moveTo(i * scale, 0);
+			ctx.lineTo(i * scale, canvas.height);
+			ctx.closePath();
+			ctx.stroke();
+			ctx.beginPath();
+			ctx.moveTo(0, i * scale);
+			ctx.lineTo(canvas.height, i * scale);
+			ctx.closePath();
+			ctx.stroke();
+		}
+	}
+
+	preview() {
+		for (var i = 0; i < size; i++) {
+			for (var j = 0; j < size; j++) {
+				ctxP.beginPath();
+				ctxP.fillStyle = rgb(this.sprite[i][j]);
+				ctxP.fillRect(i, j, 1, 1);
+				ctxP.closePath();
+			}
 		}
 	}
 
@@ -71,15 +109,8 @@ class Sprite {
 		}
 	}
 
-	preview() {
-		for (var i = 0; i < size; i++) {
-			for (var j = 0; j < size; j++) {
-				ctxP.beginPath();
-				ctxP.fillStyle = rgb(this.sprite[i][j]);
-				ctxP.fillRect(i, j, 1, 1);
-				ctxP.closePath();
-			}
-		}
+	setColor(color: RGBA) {
+		this.color = color;
 	}
 }
 
@@ -147,27 +178,49 @@ saveOption.onclick = function() {
 	save = true;
 }
 
+var redOption = <HTMLInputElement>document.getElementById('option-red');
+var redOptionLabel = <HTMLInputElement>document.getElementById('option-red-label');
+redOption.value = '0';
+redOptionLabel.innerHTML = 'Red (0)';
+redOption.onchange = function() {
+	redOptionLabel.innerHTML = 'Red (' + this.value + ')';
+	sprite.setColor({
+		r: this.value,
+		g: sprite.color.g,
+		b: sprite.color.b,
+	});
+}
+
+var greenOption = <HTMLInputElement>document.getElementById('option-green');
+var greenOptionLabel = <HTMLInputElement>document.getElementById('option-green-label');
+greenOption.value = '0';
+greenOptionLabel.innerHTML = 'Green (0)';
+greenOption.onchange = function() {
+	greenOptionLabel.innerHTML = 'Green (' + this.value + ')';
+	sprite.setColor({
+		r: sprite.color.r,
+		g: this.value,
+		b: sprite.color.b,
+	});
+}
+
+var blueOption = <HTMLInputElement>document.getElementById('option-blue');
+var blueOptionLabel = <HTMLInputElement>document.getElementById('option-blue-label');
+blueOption.value = '0';
+blueOptionLabel.innerHTML = 'Blue (0)';
+blueOption.onchange = function() {
+	blueOptionLabel.innerHTML = 'Blue (' + this.value + ')';
+	sprite.setColor({
+		r: sprite.color.r,
+		g: sprite.color.g,
+		b: this.value,
+	});
+}
+
 var gridOption = <HTMLInputElement>document.getElementById('option-grid');
 var showGrid: boolean = true;
 gridOption.onchange = function() {
 	showGrid = !showGrid;
-}
-
-function renderGrid() {
-	ctx.strokeStyle = rgba({r:128, g:128, b: 128, a: 0.5});
-	ctx.lineWidth = 1;
-	for (var i = 0; i <= size; i++) {
-		ctx.beginPath();
-		ctx.moveTo(i * scale, 0);
-		ctx.lineTo(i * scale, canvas.height);
-		ctx.closePath();
-		ctx.stroke();
-		ctx.beginPath();
-		ctx.moveTo(0, i * scale);
-		ctx.lineTo(canvas.height, i * scale);
-		ctx.closePath();
-		ctx.stroke();
-	}
 }
 
 var image = null;
@@ -176,7 +229,7 @@ function update() {
 	sprite.preview();
 	sprite.render();
 	if (showGrid) {
-		renderGrid();
+		sprite.grid();
 	}
 	if (save) {
 		save = false;
@@ -191,7 +244,7 @@ function pixelate(mouseEvent: MouseEvent) {
 	var rect = canvas.getBoundingClientRect();
 	var x = Math.floor((mouseEvent.clientX - rect.left) / scale);
 	var y = Math.floor((mouseEvent.clientY - rect.top) / scale);
-	sprite.color(x, y);
+	sprite.draw(x, y);
 }
 
 var drawing = false;

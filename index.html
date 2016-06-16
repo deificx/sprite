@@ -28,6 +28,7 @@
 		select {
 			display: block;
 			margin-bottom: 1em;
+			width: 100%;
 		}
 
 		input[type="checkbox"] {
@@ -62,10 +63,16 @@
 		<select id="option-scale"></select>
 		<label for="option-size">Sprite size</label>
 		<select id="option-size"></select>
+		<label for="option-red" id="option-red-label">Red</label>
+		<input type="range" min="0" max="255" id="option-red" />
+		<label for="option-green" id="option-green-label">Green</label>
+		<input type="range" min="0" max="255" id="option-green" />
+		<label for="option-blue" id="option-blue-label">Blue</label>
+		<input type="range" min="0" max="255" id="option-blue" />
 		<label for="option-grid">
 			<input type="checkbox" id="option-grid" checked> Show grid
 		</label>
-		<button id="option-save">Save</button>
+		<button id="option-save">Download</button>
 	</div>
 	<script src="index.js"></script>
 </body>
