@@ -39,7 +39,9 @@ var Sprite = (function () {
         }
     }
     Sprite.prototype.color = function (x, y) {
-        this.sprite[x][y] = { r: 0, g: 0, b: 0 };
+        if (typeof this.sprite[x] !== 'undefined' && typeof this.sprite[x][y] !== 'undefined') {
+            this.sprite[x][y] = { r: 0, g: 0, b: 0 };
+        }
     };
     Sprite.prototype.render = function () {
         for (var i = 0; i < size; i++) {
@@ -108,6 +110,11 @@ sizeOptions.onchange = function () {
     resetCanvas();
     sprite = new Sprite(size);
 };
+var saveOption = document.getElementById('option-save');
+var save = false;
+saveOption.onclick = function () {
+    save = true;
+};
 function renderGrid() {
     ctx.strokeStyle = rgba({ r: 128, g: 128, b: 128, a: 0.5 });
     ctx.lineWidth = 1;
@@ -124,11 +131,17 @@ function renderGrid() {
         ctx.stroke();
     }
 }
+var image = null;
 function update() {
     requestAnimationFrame(update);
     sprite.render();
     renderGrid();
     sprite.preview();
+    if (save) {
+        save = false;
+        image = preview.toDataURL('image/png').replace('image/png', 'image/octet-stream');
+        location.href = image;
+    }
 }
 requestAnimationFrame(update);
 function pixelate(mouseEvent) {
