@@ -115,6 +115,11 @@ var save = false;
 saveOption.onclick = function () {
     save = true;
 };
+var gridOption = document.getElementById('option-grid');
+var showGrid = true;
+gridOption.onchange = function () {
+    showGrid = !showGrid;
+};
 function renderGrid() {
     ctx.strokeStyle = rgba({ r: 128, g: 128, b: 128, a: 0.5 });
     ctx.lineWidth = 1;
@@ -134,9 +139,11 @@ function renderGrid() {
 var image = null;
 function update() {
     requestAnimationFrame(update);
-    sprite.render();
-    renderGrid();
     sprite.preview();
+    sprite.render();
+    if (showGrid) {
+        renderGrid();
+    }
     if (save) {
         save = false;
         image = preview.toDataURL('image/png').replace('image/png', 'image/octet-stream');

@@ -142,9 +142,15 @@ sizeOptions.onchange = function() {
 }
 
 var saveOption = <HTMLButtonElement>document.getElementById('option-save');
-var save = false;
+var save: boolean = false;
 saveOption.onclick = function() {
 	save = true;
+}
+
+var gridOption = <HTMLInputElement>document.getElementById('option-grid');
+var showGrid: boolean = true;
+gridOption.onchange = function() {
+	showGrid = !showGrid;
 }
 
 function renderGrid() {
@@ -167,9 +173,11 @@ function renderGrid() {
 var image = null;
 function update() {
 	requestAnimationFrame(update);
-	sprite.render();
-	renderGrid();
 	sprite.preview();
+	sprite.render();
+	if (showGrid) {
+		renderGrid();
+	}
 	if (save) {
 		save = false;
 		image = preview.toDataURL('image/png').replace('image/png', 'image/octet-stream');
