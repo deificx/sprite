@@ -1,7 +1,5 @@
 /// <reference path="typings/index.d.ts" />
 
-Ractive.DEBUG = true;
-
 var canvas = <HTMLCanvasElement>document.getElementById('sprite-editor');
 var preview = <HTMLCanvasElement>document.getElementById('sprite-preview');
 var ctx: CanvasRenderingContext2D = canvas.getContext('2d');
