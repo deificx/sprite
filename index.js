@@ -158,46 +158,64 @@ sizeOption.observe('selectedOption', function (newValue) {
     sprite = new Sprite(size);
     resetCanvas();
 });
+var redOption = new Ractive({
+    el: '#option-red',
+    template: '#slider',
+    data: {
+        id: 'red',
+        min: '0',
+        max: '255'
+    }
+});
+redOption.set('selectedValue', sprite.color.r);
+redOption.observe('selectedValue', function (newValue) {
+    redOption.set('title', 'Red (' + newValue + ')');
+    sprite.setColor({
+        r: newValue,
+        g: sprite.color.g,
+        b: sprite.color.b
+    });
+});
+var greenOption = new Ractive({
+    el: '#option-green',
+    template: '#slider',
+    data: {
+        id: 'green',
+        min: '0',
+        max: '255'
+    }
+});
+greenOption.set('selectedValue', sprite.color.r);
+greenOption.observe('selectedValue', function (newValue) {
+    greenOption.set('title', 'Green (' + newValue + ')');
+    sprite.setColor({
+        r: sprite.color.r,
+        g: newValue,
+        b: sprite.color.b
+    });
+});
+var blueOption = new Ractive({
+    el: '#option-blue',
+    template: '#slider',
+    data: {
+        id: 'blue',
+        min: '0',
+        max: '255'
+    }
+});
+blueOption.set('selectedValue', sprite.color.r);
+blueOption.observe('selectedValue', function (newValue) {
+    blueOption.set('title', 'Blue (' + newValue + ')');
+    sprite.setColor({
+        r: sprite.color.r,
+        g: sprite.color.g,
+        b: newValue
+    });
+});
 var saveOption = document.getElementById('option-save');
 var save = false;
 saveOption.onclick = function () {
     save = true;
-};
-var redOption = document.getElementById('option-red');
-var redOptionLabel = document.getElementById('option-red-label');
-redOption.value = '0';
-redOptionLabel.innerHTML = 'Red (0)';
-redOption.onchange = function () {
-    redOptionLabel.innerHTML = 'Red (' + this.value + ')';
-    sprite.setColor({
-        r: this.value,
-        g: sprite.color.g,
-        b: sprite.color.b
-    });
-};
-var greenOption = document.getElementById('option-green');
-var greenOptionLabel = document.getElementById('option-green-label');
-greenOption.value = '0';
-greenOptionLabel.innerHTML = 'Green (0)';
-greenOption.onchange = function () {
-    greenOptionLabel.innerHTML = 'Green (' + this.value + ')';
-    sprite.setColor({
-        r: sprite.color.r,
-        g: this.value,
-        b: sprite.color.b
-    });
-};
-var blueOption = document.getElementById('option-blue');
-var blueOptionLabel = document.getElementById('option-blue-label');
-blueOption.value = '0';
-blueOptionLabel.innerHTML = 'Blue (0)';
-blueOption.onchange = function () {
-    blueOptionLabel.innerHTML = 'Blue (' + this.value + ')';
-    sprite.setColor({
-        r: sprite.color.r,
-        g: sprite.color.g,
-        b: this.value
-    });
 };
 var gridOption = document.getElementById('option-grid');
 var showGrid = true;
