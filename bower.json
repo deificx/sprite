@@ -1,0 +1,22 @@
+{
+  "name": "sprite",
+  "description": "A sprite drawing tool",
+  "main": "index.js",
+  "authors": [
+    "Even Alander <even@alander.org>"
+  ],
+  "license": "UNLISENCED",
+  "homepage": "https://github.com/deificx/sprite",
+  "moduleType": [],
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "ractive": "^0.7.3"
+  }
+}
