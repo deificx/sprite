@@ -1,3 +1,7 @@
+/// <reference path="typings/index.d.ts" />
+
+Ractive.DEBUG = true;
+
 var canvas = <HTMLCanvasElement>document.getElementById('sprite-editor');
 var preview = <HTMLCanvasElement>document.getElementById('sprite-preview');
 var ctx: CanvasRenderingContext2D = canvas.getContext('2d');
@@ -125,52 +129,64 @@ function resetCanvas() {
 
 resetCanvas();
 
-var scaleOptions = <HTMLSelectElement>document.getElementById('option-scale');
-var scaleOptionSmall = <HTMLOptionElement>document.createElement('option');
-var scaleOptionMedium = <HTMLOptionElement>document.createElement('option');
-var scaleOptionLarge = <HTMLOptionElement>document.createElement('option');
+const scaleOption = new Ractive({
+	el: '#option-scale',
+	template: '#dropdown',
+	data: {
+		id: 'pixel-scale',
+		title: 'Pixel Scale',
+		options: [
+			{
+				value: scaleSize.Small.toString(),
+				label: 'Small',
+			},
+			{
+				value: scaleSize.Medium.toString(),
+				label: 'Medium',
+			},
+			{
+				value: scaleSize.Large.toString(),
+				label: 'Large',
+			}
+		],
+	},
+});
 
-scaleOptionSmall.value = scaleSize.Small.toString();
-scaleOptionSmall.innerHTML = 'Small';
-scaleOptions.appendChild(scaleOptionSmall);
-
-scaleOptionMedium.value = scaleSize.Medium.toString();
-scaleOptionMedium.innerHTML = 'Medium';
-scaleOptions.appendChild(scaleOptionMedium);
-
-scaleOptionLarge.value = scaleSize.Large.toString();
-scaleOptionLarge.innerHTML = 'Large';
-scaleOptions.appendChild(scaleOptionLarge);
-
-scaleOptions.selectedIndex = 1;
-scaleOptions.onchange = function () {
-	scale = this.value;
+scaleOption.set('selectedOption', scaleSize.Medium.toString());
+scaleOption.observe('selectedOption', function(newValue) {
+	scale = newValue;
 	resetCanvas();
-}
+});
 
-var sizeOptions = <HTMLSelectElement>document.getElementById('option-size');
-var sizeOptionSmall = <HTMLOptionElement>document.createElement('option');
-var sizeOptionMedium = <HTMLOptionElement>document.createElement('option');
-var sizeOptionLarge = <HTMLOptionElement>document.createElement('option');
+const sizeOption = new Ractive({
+	el: '#option-size',
+	template: '#dropdown',
+	data: {
+		id: 'sprite-size',
+		title: 'Sprite Size',
+		options: [
+			{
+				value: tileSize.Small.toString(),
+				label: 'Small (' + tileSize.Small + 'x' + tileSize.Small + ')',
+			},
+			{
+				value: tileSize.Medium.toString(),
+				label: 'Medium (' + tileSize.Medium + 'x' + tileSize.Medium + ')',
+			},
+			{
+				value: tileSize.Large.toString(),
+				label: 'Large (' + tileSize.Large + 'x' + tileSize.Large + ')',
+			},
+		],
+	}
+});
 
-sizeOptionSmall.value = tileSize.Small.toString();
-sizeOptionSmall.innerHTML = 'Small';
-sizeOptions.appendChild(sizeOptionSmall);
-
-sizeOptionMedium.value = tileSize.Medium.toString();
-sizeOptionMedium.innerHTML = 'Medium';
-sizeOptions.appendChild(sizeOptionMedium);
-
-sizeOptionLarge.value = tileSize.Large.toString();
-sizeOptionLarge.innerHTML = 'Large';
-sizeOptions.appendChild(sizeOptionLarge);
-
-sizeOptions.selectedIndex = 1;
-sizeOptions.onchange = function() {
-	size = this.value;
-	resetCanvas();
+sizeOption.set('selectedOption', tileSize.Medium.toString());
+sizeOption.observe('selectedOption', function(newValue) {
+	size = newValue;
 	sprite = new Sprite(size);
-}
+	resetCanvas();
+});
 
 var saveOption = <HTMLButtonElement>document.getElementById('option-save');
 var save: boolean = false;

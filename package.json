@@ -12,6 +12,5 @@
   "license": "UNLISENCED",
   "devDependencies": {
     "tsc": "^1.20150623.0"
-  },
-  "dependencies": {}
+  }
 }

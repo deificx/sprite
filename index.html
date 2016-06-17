@@ -9,10 +9,8 @@
 	<canvas id="sprite-editor"></canvas>
 	<div id="toolbar">
 		<canvas id="sprite-preview"></canvas>
-		<label for="option-scale">Pixel Scale</label>
-		<select id="option-scale"></select>
-		<label for="option-size">Sprite size</label>
-		<select id="option-size"></select>
+		<div id="option-scale"></div>
+		<div id="option-size"></div>
 		<label for="option-red" id="option-red-label">Red</label>
 		<input type="range" min="0" max="255" id="option-red" />
 		<label for="option-green" id="option-green-label">Green</label>
@@ -25,6 +23,15 @@
 		<button id="option-save">Download</button>
 		<p><a href="https://github.com/deificx/sprite">project on github</a></p>
 	</div>
+	<script id="dropdown" type="text/ractive">
+		<label for="{{id}}">{{title}}</label>
+		<select id="{{id}}" value="{{selectedOption}}">
+			{{#options}}
+			<option value={{this.value}}>{{this.label}}</option>
+			{{/options}}
+		</select>
+	</script>
+	<script src='http://cdn.ractivejs.org/latest/ractive.min.js'></script>
 	<script src="index.js"></script>
 </body>
 </html>
