@@ -129,65 +129,6 @@ function resetCanvas() {
 
 resetCanvas();
 
-const scaleOption = new Ractive({
-	el: '#option-scale',
-	template: '#dropdown',
-	data: {
-		id: 'pixel-scale',
-		title: 'Pixel Scale',
-		options: [
-			{
-				value: scaleSize.Small.toString(),
-				label: 'Small',
-			},
-			{
-				value: scaleSize.Medium.toString(),
-				label: 'Medium',
-			},
-			{
-				value: scaleSize.Large.toString(),
-				label: 'Large',
-			}
-		],
-	},
-});
-
-scaleOption.set('selectedOption', scaleSize.Medium.toString());
-scaleOption.observe('selectedOption', function(newValue) {
-	scale = newValue;
-	resetCanvas();
-});
-
-const sizeOption = new Ractive({
-	el: '#option-size',
-	template: '#dropdown',
-	data: {
-		id: 'sprite-size',
-		title: 'Sprite Size',
-		options: [
-			{
-				value: tileSize.Small.toString(),
-				label: 'Small (' + tileSize.Small + 'x' + tileSize.Small + ')',
-			},
-			{
-				value: tileSize.Medium.toString(),
-				label: 'Medium (' + tileSize.Medium + 'x' + tileSize.Medium + ')',
-			},
-			{
-				value: tileSize.Large.toString(),
-				label: 'Large (' + tileSize.Large + 'x' + tileSize.Large + ')',
-			},
-		],
-	}
-});
-
-sizeOption.set('selectedOption', tileSize.Medium.toString());
-sizeOption.observe('selectedOption', function(newValue) {
-	size = newValue;
-	sprite = new Sprite(size);
-	resetCanvas();
-});
-
 const color = new Ractive({
 	el: '#color',
 	template: '<div style="background-color:rgb({{red}},{{green}},{{blue}})"></div>',
@@ -198,66 +139,132 @@ const color = new Ractive({
 	}
 });
 
-const redOption = new Ractive({
-	el: '#option-red',
-	template: '#slider',
-	data: {
-		id: 'red',
-		min: '0',
-		max: '255',
+interface Option {
+	id: string,
+	template: string,
+	selected: string,
+	options: Array<{
+		label?: string,
+		value?: string,
+	}>,
+	cb: Function,
+}
+
+const options: Array<Option> = [];
+const _options: Object = {};
+
+options.push({
+	id: 'pixel-scale',
+	template: 'dropdown',
+	selected: scaleSize.Medium.toString(),
+	options: [
+		{
+			value: scaleSize.Small.toString(),
+			label: 'Small',
+		},
+		{
+			value: scaleSize.Medium.toString(),
+			label: 'Medium',
+		},
+		{
+			value: scaleSize.Large.toString(),
+			label: 'Large',
+		}
+	],
+	cb: function(value) {
+		scale = value;
+		resetCanvas();
 	},
 });
 
-redOption.set('selectedValue', sprite.color.r);
-redOption.observe('selectedValue', (newValue) => {
-	redOption.set('title', 'Red (' + newValue + ')');
-	color.set('red', newValue);
-	sprite.setColor({
-		r: newValue,
-		g: sprite.color.g,
-		b: sprite.color.b,
+options.push({
+	id: 'sprite-size',
+	template: 'dropdown',
+	selected: tileSize.Medium.toString(),
+	options: [
+		{
+			value: tileSize.Small.toString(),
+			label: 'Small (' + tileSize.Small + 'x' + tileSize.Small + ')',
+		},
+		{
+			value: tileSize.Medium.toString(),
+			label: 'Medium (' + tileSize.Medium + 'x' + tileSize.Medium + ')',
+		},
+		{
+			value: tileSize.Large.toString(),
+			label: 'Large (' + tileSize.Large + 'x' + tileSize.Large + ')',
+		},
+	],
+	cb: function(value) {
+		size = value;
+		resetCanvas();
+		sprite = new Sprite(size);
+	},
+});
+
+options.push({
+	id: 'red',
+	template: 'slider',
+	selected: sprite.color.r.toString(),
+	options: [],
+	cb: function(value, ractive) {
+		ractive.set('title', 'Red (' + value + ')');
+		color.set('red', value);
+		sprite.setColor({
+			r: value,
+			g: sprite.color.g,
+			b: sprite.color.b,
+		});
+	},
+});
+
+options.push({
+	id: 'green',
+	template: 'slider',
+	selected: sprite.color.g.toString(),
+	options: [],
+	cb: function(value, ractive) {
+		ractive.set('title', 'Green (' + value + ')');
+		color.set('green', value);
+		sprite.setColor({
+			r: sprite.color.r,
+			g: value,
+			b: sprite.color.b,
+		});
+	},
+});
+
+options.push({
+	id: 'blue',
+	template: 'slider',
+	selected: sprite.color.b.toString(),
+	options: [],
+	cb: function(value, ractive) {
+		ractive.set('title', 'Blue (' + value + ')');
+		color.set('blue', value);
+		sprite.setColor({
+			r: sprite.color.r,
+			g: sprite.color.g,
+			b: value,
+		});
+	},
+});
+
+options.forEach((option) => {
+	_options[option.id] = new Ractive({
+		el: '#option-' + option.id,
+		template: '#' + option.template,
+		data: {
+			id: option.id,
+			title: option.id,
+			min: '0',
+			max: '255',
+			options: option.options,
+		}
 	});
-});
-
-const greenOption = new Ractive({
-	el: '#option-green',
-	template: '#slider',
-	data: {
-		id: 'green',
-		min: '0',
-		max: '255',
-	},
-});
-
-greenOption.set('selectedValue', sprite.color.r);
-greenOption.observe('selectedValue', (newValue) => {
-	greenOption.set('title', 'Green (' + newValue + ')');
-	color.set('green', newValue);
-	sprite.setColor({
-		r: sprite.color.r,
-		g: newValue,
-		b: sprite.color.b,
-	});
-});
-
-const blueOption = new Ractive({
-	el: '#option-blue',
-	template: '#slider',
-	data: {
-		id: 'blue',
-		min: '0',
-		max: '255',
-	},
-});
-
-blueOption.set('selectedValue', sprite.color.r);
-blueOption.observe('selectedValue', (newValue) => {
-	blueOption.set('title', 'Blue (' + newValue + ')');
-	color.set('blue', newValue);
-	sprite.setColor({
-		r: sprite.color.r,
-		g: sprite.color.g,
-		b: newValue,
+	_options[option.id].set('selectedValue', option.selected);
+	_options[option.id].observe('selectedValue', function(newValue) {
+		option.cb(newValue, _options[option.id]);
 	});
 });
 

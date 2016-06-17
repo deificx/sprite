@@ -9,8 +9,8 @@
 	<canvas id="sprite-editor"></canvas>
 	<div id="toolbar">
 		<canvas id="sprite-preview"></canvas>
-		<div id="option-scale"></div>
-		<div id="option-size"></div>
+		<div id="option-pixel-scale"></div>
+		<div id="option-sprite-size"></div>
 		<div id="color"></div>
 		<div id="option-red"></div>
 		<div id="option-green"></div>
@@ -23,7 +23,7 @@
 	</div>
 	<script id="dropdown" type="text/ractive">
 		<label for="{{id}}">{{title}}</label>
-		<select id="{{id}}" value="{{selectedOption}}">
+		<select id="{{id}}" value="{{selectedValue}}">
 			{{#options}}
 			<option value={{this.value}}>{{this.label}}</option>
 			{{/options}}
