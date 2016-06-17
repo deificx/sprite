@@ -1,0 +1,50 @@
+html,
+body {
+	height: 100%;
+}
+
+body {
+	background-color: #eee;
+	display: flex;
+	justify-content: space-between;
+	margin: 0;
+}
+
+button {
+	display: block;
+	margin: 1em auto;
+}
+
+label {
+	display: block;
+	text-align: center;
+}
+
+select {
+	display: block;
+	margin-bottom: 1em;
+	width: 100%;
+}
+
+input[type="checkbox"] {
+	display: block;
+	margin: 0 auto;
+}
+
+#sprite-editor {
+	margin: auto;
+}
+
+#sprite-editor:active {
+	cursor: default;
+}
+
+#sprite-preview {
+	display: block;
+	margin: 1em auto;
+}
+
+#toolbar {
+	background-color: #ddd;
+	padding: 1em;
+}
