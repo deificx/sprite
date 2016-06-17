@@ -31,6 +31,11 @@ input[type="checkbox"] {
 	margin: 0 auto;
 }
 
+#color div {
+	height: 1em;
+	margin: .5em 0 1em;
+}
+
 #sprite-editor {
 	margin: auto;
 }

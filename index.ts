@@ -188,6 +188,16 @@ sizeOption.observe('selectedOption', function(newValue) {
 	resetCanvas();
 });
 
+const color = new Ractive({
+	el: '#color',
+	template: '<div style="background-color:rgb({{red}},{{green}},{{blue}})"></div>',
+	data: {
+		red: sprite.color.r,
+		green: sprite.color.g,
+		blue: sprite.color.b,
+	}
+});
+
 const redOption = new Ractive({
 	el: '#option-red',
 	template: '#slider',
@@ -201,6 +211,7 @@ const redOption = new Ractive({
 redOption.set('selectedValue', sprite.color.r);
 redOption.observe('selectedValue', (newValue) => {
 	redOption.set('title', 'Red (' + newValue + ')');
+	color.set('red', newValue);
 	sprite.setColor({
 		r: newValue,
 		g: sprite.color.g,
@@ -221,6 +232,7 @@ const greenOption = new Ractive({
 greenOption.set('selectedValue', sprite.color.r);
 greenOption.observe('selectedValue', (newValue) => {
 	greenOption.set('title', 'Green (' + newValue + ')');
+	color.set('green', newValue);
 	sprite.setColor({
 		r: sprite.color.r,
 		g: newValue,
@@ -241,6 +253,7 @@ const blueOption = new Ractive({
 blueOption.set('selectedValue', sprite.color.r);
 blueOption.observe('selectedValue', (newValue) => {
 	blueOption.set('title', 'Blue (' + newValue + ')');
+	color.set('blue', newValue);
 	sprite.setColor({
 		r: sprite.color.r,
 		g: sprite.color.g,
@@ -277,7 +290,7 @@ function update() {
 
 requestAnimationFrame(update);
 
-function pixelate(mouseEvent: MouseEvent) {
+function draw(mouseEvent: MouseEvent) {
 	var rect = canvas.getBoundingClientRect();
 	var x = Math.floor((mouseEvent.clientX - rect.left) / scale);
 	var y = Math.floor((mouseEvent.clientY - rect.top) / scale);
@@ -288,12 +301,12 @@ var drawing = false;
 
 canvas.onmousedown = function(event) {
 	drawing = true;
-	pixelate(event);
+	draw(event);
 };
 
 canvas.onmousemove = function(event) {
 	if (drawing) {
-		pixelate(event);
+		draw(event);
 	}
 };
 

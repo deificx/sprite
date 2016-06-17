@@ -158,6 +158,15 @@ sizeOption.observe('selectedOption', function (newValue) {
     sprite = new Sprite(size);
     resetCanvas();
 });
+var color = new Ractive({
+    el: '#color',
+    template: '<div style="background-color:rgb({{red}},{{green}},{{blue}})"></div>',
+    data: {
+        red: sprite.color.r,
+        green: sprite.color.g,
+        blue: sprite.color.b
+    }
+});
 var redOption = new Ractive({
     el: '#option-red',
     template: '#slider',
@@ -170,6 +179,7 @@ var redOption = new Ractive({
 redOption.set('selectedValue', sprite.color.r);
 redOption.observe('selectedValue', function (newValue) {
     redOption.set('title', 'Red (' + newValue + ')');
+    color.set('red', newValue);
     sprite.setColor({
         r: newValue,
         g: sprite.color.g,
@@ -188,6 +198,7 @@ var greenOption = new Ractive({
 greenOption.set('selectedValue', sprite.color.r);
 greenOption.observe('selectedValue', function (newValue) {
     greenOption.set('title', 'Green (' + newValue + ')');
+    color.set('green', newValue);
     sprite.setColor({
         r: sprite.color.r,
         g: newValue,
@@ -206,6 +217,7 @@ var blueOption = new Ractive({
 blueOption.set('selectedValue', sprite.color.r);
 blueOption.observe('selectedValue', function (newValue) {
     blueOption.set('title', 'Blue (' + newValue + ')');
+    color.set('blue', newValue);
     sprite.setColor({
         r: sprite.color.r,
         g: sprite.color.g,
@@ -237,7 +249,7 @@ function update() {
     }
 }
 requestAnimationFrame(update);
-function pixelate(mouseEvent) {
+function draw(mouseEvent) {
     var rect = canvas.getBoundingClientRect();
     var x = Math.floor((mouseEvent.clientX - rect.left) / scale);
     var y = Math.floor((mouseEvent.clientY - rect.top) / scale);
@@ -246,11 +258,11 @@ function pixelate(mouseEvent) {
 var drawing = false;
 canvas.onmousedown = function (event) {
     drawing = true;
-    pixelate(event);
+    draw(event);
 };
 canvas.onmousemove = function (event) {
     if (drawing) {
-        pixelate(event);
+        draw(event);
     }
 };
 canvas.onmouseup = function (event) {
