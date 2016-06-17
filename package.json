@@ -1,12 +1,17 @@
 {
-  "name": "sprite-editor",
-  "version": "1.0.0",
-  "description": "",
+  "name": "sprite",
+  "version": "0.1.0",
+  "description": "A sprite drawing tool",
   "main": "index.js",
   "scripts": {
+    "start": "tsc --watch index.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC"
+  "author": "Even Alander <even@alander.org>",
+  "license": "UNLISENCED",
+  "devDependencies": {
+    "tsc": "^1.20150623.0"
+  },
+  "dependencies": {}
 }

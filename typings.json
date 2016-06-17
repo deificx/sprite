@@ -1,0 +1,7 @@
+{
+  "name": "sprite",
+  "dependencies": {},
+  "globalDependencies": {
+    "ractive": "registry:dt/ractive#0.0.0+20160316171810"
+  }
+}
