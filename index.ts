@@ -6,9 +6,10 @@ var ctx: CanvasRenderingContext2D = canvas.getContext('2d');
 var ctxP: CanvasRenderingContext2D = preview.getContext('2d');
 
 enum scaleSize {
-	Small = 8,
-	Medium = 16,
-	Large = 24,
+	Original = 1,
+	Small = 4,
+	Medium = 8,
+	Large = 16,
 }
 
 enum tileSize {
@@ -92,14 +93,13 @@ class Sprite {
 				});
 			}
 		}
-		console.log(neighbours);
 		neighbours.forEach((neighbour) => {
 			this._draw(neighbour.x, neighbour.y);
 		});
 	}
 
 	grid() {
-		ctx.strokeStyle = rgba({ r: 128, g: 128, b: 128, a: 0.5 });
+		ctx.strokeStyle = rgba({ r: 128, g: 128, b: 128, a: 0.25 });
 		ctx.lineWidth = 1;
 		for (var i = 0; i <= size; i++) {
 			ctx.beginPath();
@@ -189,16 +189,20 @@ options.push({
 	selected: scaleSize.Medium.toString(),
 	options: [
 		{
+			value: scaleSize.Original.toString(),
+			label: 'Original',
+		},
+		{
 			value: scaleSize.Small.toString(),
-			label: 'Small',
+			label: 'Small (' + scaleSize.Small + ')',
 		},
 		{
 			value: scaleSize.Medium.toString(),
-			label: 'Medium',
+			label: 'Medium (' + scaleSize.Medium + ')',
 		},
 		{
 			value: scaleSize.Large.toString(),
-			label: 'Large',
+			label: 'Large (' + scaleSize.Large + ')',
 		}
 	],
 	cb: function(value) {
@@ -323,7 +327,7 @@ function update() {
 	requestAnimationFrame(update);
 	sprite.preview();
 	sprite.render();
-	if (showGrid) {
+	if (showGrid && scale != scaleSize.Original) {
 		sprite.grid();
 	}
 	if (save) {
