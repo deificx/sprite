@@ -18,11 +18,15 @@ var tileSize;
 })(tileSize || (tileSize = {}));
 var scale = scaleSize.Medium;
 var size = tileSize.Medium;
+var showGrid = false;
 function rgb(color) {
     return 'rgb(' + color.r + ', ' + color.g + ', ' + color.b + ')';
 }
 function rgba(color) {
     return 'rgba(' + color.r + ', ' + color.g + ', ' + color.b + ',' + color.a + ')';
+}
+function clamp(n, min, max) {
+    return n < min ? min : n > max ? max : n;
 }
 var Sprite = (function () {
     function Sprite(spriteSize) {
@@ -32,6 +36,7 @@ var Sprite = (function () {
             g: 0,
             b: 0
         };
+        this.colorVary = true;
         this.size = spriteSize;
         this.sprite = [];
         for (var i = 0; i < this.size; i++) {
@@ -48,10 +53,18 @@ var Sprite = (function () {
     }
     Sprite.prototype._draw = function (x, y) {
         if (typeof this.sprite[x] !== 'undefined' && typeof this.sprite[x][y] !== 'undefined') {
+            var rVary = 0;
+            var gVary = 0;
+            var bVary = 0;
+            if (this.colorVary) {
+                rVary = clamp(Math.round(Math.random() * 64 - 32), 0, 255);
+                gVary = clamp(Math.round(Math.random() * 64 - 32), 0, 255);
+                bVary = clamp(Math.round(Math.random() * 64 - 32), 0, 255);
+            }
             this.sprite[x][y] = {
-                r: this.color.r,
-                g: this.color.g,
-                b: this.color.b
+                r: this.color.r + rVary,
+                g: this.color.g + gVary,
+                b: this.color.b + bVary
             };
         }
     };
@@ -119,6 +132,9 @@ var Sprite = (function () {
     Sprite.prototype.setColor = function (color) {
         this.color = color;
     };
+    Sprite.prototype.toggleColorVary = function () {
+        this.colorVary = !this.colorVary;
+    };
     return Sprite;
 })();
 var sprite = new Sprite(size);
@@ -142,6 +158,7 @@ var options = [];
 var _options = {};
 options.push({
     id: 'pixel-scale',
+    title: 'Pixel Scale',
     template: 'dropdown',
     selected: scaleSize.Medium.toString(),
     options: [
@@ -169,6 +186,7 @@ options.push({
 });
 options.push({
     id: 'sprite-size',
+    title: 'Sprite Size',
     template: 'dropdown',
     selected: tileSize.Medium.toString(),
     options: [
@@ -243,13 +261,31 @@ options.push({
         sprite.setBrushSize(value);
     }
 });
+options.push({
+    id: 'color-variation',
+    title: 'Color Variation',
+    template: 'checkbox',
+    selected: '',
+    cb: function () {
+        sprite.toggleColorVary();
+    }
+});
+options.push({
+    id: 'grid',
+    title: 'Show Grid',
+    template: 'checkbox',
+    selected: 'checked',
+    cb: function () {
+        showGrid = !showGrid;
+    }
+});
 options.forEach(function (option) {
     _options[option.id] = new Ractive({
         el: '#option-' + option.id,
         template: '#' + option.template,
         data: {
             id: option.id,
-            title: option.id,
+            title: option.title || option.id,
             min: option.min || '0',
             max: option.max || '255',
             options: option.options || []
@@ -264,11 +300,6 @@ var saveOption = document.getElementById('option-save');
 var save = false;
 saveOption.onclick = function () {
     save = true;
-};
-var gridOption = document.getElementById('option-grid');
-var showGrid = true;
-gridOption.onchange = function () {
-    showGrid = !showGrid;
 };
 var image = null;
 function update() {

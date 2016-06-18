@@ -12,12 +12,16 @@ body {
 
 button {
 	display: block;
-	margin: 1em auto;
+	margin: 0 auto;
 }
 
 label {
 	display: block;
 	text-align: center;
+}
+
+label.checkbox {
+	margin-bottom: 1em;
 }
 
 select {

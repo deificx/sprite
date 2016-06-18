@@ -27,6 +27,7 @@ interface RGBA {
 
 var scale: number = scaleSize.Medium;
 var size: number = tileSize.Medium;
+var showGrid: boolean = false;
 
 function rgb(color: RGBA) {
 	return 'rgb(' + color.r + ', ' + color.g + ', ' + color.b + ')';
@@ -36,9 +37,14 @@ function rgba(color: RGBA) {
 	return 'rgba(' + color.r + ', ' + color.g + ', ' + color.b + ',' + color.a + ')';
 }
 
+function clamp(n, min, max) {
+	return n < min ? min : n > max ? max : n;
+}
+
 class Sprite {
 	brushSize: number;
 	color: RGBA;
+	colorVary: boolean;
 	size: tileSize;
 	sprite: Array<Array<RGBA>>;
 
@@ -49,6 +55,7 @@ class Sprite {
 			g: 0,
 			b: 0,
 		};
+		this.colorVary = true;
 		this.size = spriteSize;
 		this.sprite = [];
 
@@ -67,10 +74,18 @@ class Sprite {
 
 	_draw(x: number, y: number) {
 		if (typeof this.sprite[x] !== 'undefined' && typeof this.sprite[x][y] !== 'undefined') {
+			let rVary = 0;
+			let gVary = 0;
+			let bVary = 0;
+			if (this.colorVary) {
+				rVary = clamp(Math.round(Math.random() * 64 - 32), 0, 255);
+				gVary = clamp(Math.round(Math.random() * 64 - 32), 0, 255);
+				bVary = clamp(Math.round(Math.random() * 64 - 32), 0, 255);
+			}
 			this.sprite[x][y] = {
-				r: this.color.r,
-				g: this.color.g,
-				b: this.color.b
+				r: this.color.r + rVary,
+				g: this.color.g + gVary,
+				b: this.color.b + bVary,
 			};
 		}
 	}
@@ -144,6 +159,10 @@ class Sprite {
 	setColor(color: RGBA) {
 		this.color = color;
 	}
+
+	toggleColorVary() {
+		this.colorVary = !this.colorVary;
+	}
 }
 
 var sprite = new Sprite(size);
@@ -169,6 +188,7 @@ const color = new Ractive({
 
 interface Option {
 	id: string,
+	title?: string,
 	template: string,
 	selected: string,
 	min?: string,
@@ -185,6 +205,7 @@ const _options: Object = {};
 
 options.push({
 	id: 'pixel-scale',
+	title: 'Pixel Scale',
 	template: 'dropdown',
 	selected: scaleSize.Medium.toString(),
 	options: [
@@ -213,6 +234,7 @@ options.push({
 
 options.push({
 	id: 'sprite-size',
+	title: 'Sprite Size',
 	template: 'dropdown',
 	selected: tileSize.Medium.toString(),
 	options: [
@@ -292,13 +314,33 @@ options.push({
 	}
 });
 
+options.push({
+	id: 'color-variation',
+	title: 'Color Variation',
+	template: 'checkbox',
+	selected: '',
+	cb: function() {
+		sprite.toggleColorVary();
+	}
+});
+
+options.push({
+	id: 'grid',
+	title: 'Show Grid',
+	template: 'checkbox',
+	selected: 'checked',
+	cb: function() {
+		showGrid = !showGrid;
+	}
+});
+
 options.forEach((option) => {
 	_options[option.id] = new Ractive({
 		el: '#option-' + option.id,
 		template: '#' + option.template,
 		data: {
 			id: option.id,
-			title: option.id,
+			title: option.title || option.id,
 			min: option.min || '0',
 			max: option.max || '255',
 			options: option.options || [],
@@ -314,12 +356,6 @@ var saveOption = <HTMLButtonElement>document.getElementById('option-save');
 var save: boolean = false;
 saveOption.onclick = function() {
 	save = true;
-}
-
-var gridOption = <HTMLInputElement>document.getElementById('option-grid');
-var showGrid: boolean = true;
-gridOption.onchange = function() {
-	showGrid = !showGrid;
 }
 
 var image = null;
