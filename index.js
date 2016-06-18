@@ -297,9 +297,9 @@ options.forEach(function (option) {
     });
 });
 var saveOption = document.getElementById('option-save');
-var save = false;
 saveOption.onclick = function () {
-    save = true;
+    image = preview.toDataURL('image/png').replace('image/png', 'image/octet-stream');
+    location.href = image;
 };
 var image = null;
 function update() {
@@ -308,11 +308,6 @@ function update() {
     sprite.render();
     if (showGrid && scale != scaleSize.Original) {
         sprite.grid();
-    }
-    if (save) {
-        save = false;
-        image = preview.toDataURL('image/png').replace('image/png', 'image/octet-stream');
-        location.href = image;
     }
 }
 requestAnimationFrame(update);

@@ -353,9 +353,9 @@ options.forEach((option) => {
 });
 
 var saveOption = <HTMLButtonElement>document.getElementById('option-save');
-var save: boolean = false;
 saveOption.onclick = function() {
-	save = true;
+	image = preview.toDataURL('image/png').replace('image/png', 'image/octet-stream');
+	location.href = image;
 }
 
 var image = null;
@@ -365,11 +365,6 @@ function update() {
 	sprite.render();
 	if (showGrid && scale != scaleSize.Original) {
 		sprite.grid();
-	}
-	if (save) {
-		save = false;
-		image = preview.toDataURL('image/png').replace('image/png', 'image/octet-stream');
-		location.href = image;
 	}
 }
 
