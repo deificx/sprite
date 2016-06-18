@@ -36,11 +36,13 @@ function rgba(color: RGBA) {
 }
 
 class Sprite {
+	brushSize: number;
 	color: RGBA;
 	size: tileSize;
 	sprite: Array<Array<RGBA>>;
 
 	constructor(spriteSize: tileSize) {
+		this.brushSize = 1;
 		this.color = {
 			r: 0,
 			g: 0,
@@ -62,7 +64,7 @@ class Sprite {
 		}
 	}
 
-	draw(x: number, y: number) {
+	_draw(x: number, y: number) {
 		if (typeof this.sprite[x] !== 'undefined' && typeof this.sprite[x][y] !== 'undefined') {
 			this.sprite[x][y] = {
 				r: this.color.r,
@@ -70,6 +72,30 @@ class Sprite {
 				b: this.color.b
 			};
 		}
+	}
+
+	_neighbours(x: number, y: number) {
+		const neighbours = [];
+		neighbours.push({ x: x - 1, y: y });
+		neighbours.push({ x: x + 1, y: y });
+		neighbours.push({ x: x, y: y - 1 });
+		neighbours.push({ x: x, y: y + 1 });
+		return neighbours;
+	}
+
+	draw(x: number, y: number) {
+		let neighbours = [{x,y}];
+		for (let i = 1; i <= this.brushSize; i++) {
+			if (i < this.brushSize) {
+				neighbours.forEach((neighbour) => {
+					neighbours = neighbours.concat(this._neighbours(neighbour.x, neighbour.y));
+				});
+			}
+		}
+		console.log(neighbours);
+		neighbours.forEach((neighbour) => {
+			this._draw(neighbour.x, neighbour.y);
+		});
 	}
 
 	grid() {
@@ -111,6 +137,10 @@ class Sprite {
 		}
 	}
 
+	setBrushSize(size) {
+		this.brushSize = size;
+	}
+
 	setColor(color: RGBA) {
 		this.color = color;
 	}
@@ -141,9 +171,11 @@ interface Option {
 	id: string,
 	template: string,
 	selected: string,
-	options: Array<{
-		label?: string,
-		value?: string,
+	min?: string,
+	max?: string,
+	options?: Array<{
+		label: string,
+		value: string,
 	}>,
 	cb: Function,
 }
@@ -204,7 +236,6 @@ options.push({
 	id: 'red',
 	template: 'slider',
 	selected: sprite.color.r.toString(),
-	options: [],
 	cb: function(value, ractive) {
 		ractive.set('title', 'Red (' + value + ')');
 		color.set('red', value);
@@ -220,7 +251,6 @@ options.push({
 	id: 'green',
 	template: 'slider',
 	selected: sprite.color.g.toString(),
-	options: [],
 	cb: function(value, ractive) {
 		ractive.set('title', 'Green (' + value + ')');
 		color.set('green', value);
@@ -236,7 +266,6 @@ options.push({
 	id: 'blue',
 	template: 'slider',
 	selected: sprite.color.b.toString(),
-	options: [],
 	cb: function(value, ractive) {
 		ractive.set('title', 'Blue (' + value + ')');
 		color.set('blue', value);
@@ -248,6 +277,17 @@ options.push({
 	},
 });
 
+options.push({
+	id: 'brush-size',
+	template: 'slider',
+	selected: sprite.brushSize.toString(),
+	min: '1',
+	max: '5',
+	cb: function(value) {
+		sprite.setBrushSize(value);
+	}
+});
+
 options.forEach((option) => {
 	_options[option.id] = new Ractive({
 		el: '#option-' + option.id,
@@ -255,9 +295,9 @@ options.forEach((option) => {
 		data: {
 			id: option.id,
 			title: option.id,
-			min: '0',
-			max: '255',
-			options: option.options,
+			min: option.min || '0',
+			max: option.max || '255',
+			options: option.options || [],
 		}
 	});
 	_options[option.id].set('selectedValue', option.selected);
