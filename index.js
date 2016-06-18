@@ -5,9 +5,10 @@ var ctx = canvas.getContext('2d');
 var ctxP = preview.getContext('2d');
 var scaleSize;
 (function (scaleSize) {
-    scaleSize[scaleSize["Small"] = 8] = "Small";
-    scaleSize[scaleSize["Medium"] = 16] = "Medium";
-    scaleSize[scaleSize["Large"] = 24] = "Large";
+    scaleSize[scaleSize["Original"] = 1] = "Original";
+    scaleSize[scaleSize["Small"] = 4] = "Small";
+    scaleSize[scaleSize["Medium"] = 8] = "Medium";
+    scaleSize[scaleSize["Large"] = 16] = "Large";
 })(scaleSize || (scaleSize = {}));
 var tileSize;
 (function (tileSize) {
@@ -72,13 +73,12 @@ var Sprite = (function () {
                 });
             }
         }
-        console.log(neighbours);
         neighbours.forEach(function (neighbour) {
             _this._draw(neighbour.x, neighbour.y);
         });
     };
     Sprite.prototype.grid = function () {
-        ctx.strokeStyle = rgba({ r: 128, g: 128, b: 128, a: 0.5 });
+        ctx.strokeStyle = rgba({ r: 128, g: 128, b: 128, a: 0.25 });
         ctx.lineWidth = 1;
         for (var i = 0; i <= size; i++) {
             ctx.beginPath();
@@ -146,16 +146,20 @@ options.push({
     selected: scaleSize.Medium.toString(),
     options: [
         {
+            value: scaleSize.Original.toString(),
+            label: 'Original'
+        },
+        {
             value: scaleSize.Small.toString(),
-            label: 'Small'
+            label: 'Small (' + scaleSize.Small + ')'
         },
         {
             value: scaleSize.Medium.toString(),
-            label: 'Medium'
+            label: 'Medium (' + scaleSize.Medium + ')'
         },
         {
             value: scaleSize.Large.toString(),
-            label: 'Large'
+            label: 'Large (' + scaleSize.Large + ')'
         }
     ],
     cb: function (value) {
@@ -271,7 +275,7 @@ function update() {
     requestAnimationFrame(update);
     sprite.preview();
     sprite.render();
-    if (showGrid) {
+    if (showGrid && scale != scaleSize.Original) {
         sprite.grid();
     }
     if (save) {
