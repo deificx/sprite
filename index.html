@@ -15,10 +15,9 @@
 		<div id="option-red"></div>
 		<div id="option-green"></div>
 		<div id="option-blue"></div>
+		<div id="option-color-variation"></div>
 		<div id="option-brush-size"></div>
-		<label for="option-grid">
-			<input type="checkbox" id="option-grid" checked> Show grid
-		</label>
+		<div id="option-grid"></div>
 		<button id="option-save">Download</button>
 		<p><a href="https://github.com/deificx/sprite">project on github</a></p>
 	</div>
@@ -33,6 +32,11 @@
 	<script id="slider" type="text/ractive">
 		<label for="{{id}}">{{title}}</label>
 		<input type="range" id="{{id}}" min="{{min}}" max="{{max}}" value={{selectedValue}} />
+	</script>
+	<script id="checkbox" type="text/ractive">
+		<label for="{{id}}" class="checkbox">
+			<input type="checkbox" id="{{id}}" checked="{{selectedValue}}"> {{title}}
+		</label>
 	</script>
 	<script src="bower_components/ractive/ractive.min.js"></script>
 	<script type="text/javascript">Ractive.DEBUG = false;</script>
