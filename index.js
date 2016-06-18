@@ -29,14 +29,14 @@ function clamp(n, min, max) {
     return n < min ? min : n > max ? max : n;
 }
 var Sprite = (function () {
-    function Sprite(spriteSize) {
-        this.brushSize = 1;
+    function Sprite(brushSize, colorVary, spriteSize) {
+        this.brushSize = brushSize;
         this.color = {
             r: 0,
             g: 0,
             b: 0
         };
-        this.colorVary = true;
+        this.colorVary = colorVary;
         this.size = spriteSize;
         this.sprite = [];
         for (var i = 0; i < this.size; i++) {
@@ -137,7 +137,7 @@ var Sprite = (function () {
     };
     return Sprite;
 })();
-var sprite = new Sprite(size);
+var sprite = new Sprite(1, true, size);
 function resetCanvas() {
     canvas.width = size * scale;
     canvas.height = size * scale;
@@ -206,7 +206,7 @@ options.push({
     cb: function (value) {
         size = value;
         resetCanvas();
-        sprite = new Sprite(size);
+        sprite = new Sprite(sprite.brushSize, sprite.colorVary, size);
     }
 });
 options.push({

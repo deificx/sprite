@@ -48,14 +48,14 @@ class Sprite {
 	size: tileSize;
 	sprite: Array<Array<RGBA>>;
 
-	constructor(spriteSize: tileSize) {
-		this.brushSize = 1;
+	constructor(brushSize: number, colorVary: boolean, spriteSize: tileSize) {
+		this.brushSize = brushSize;
 		this.color = {
 			r: 0,
 			g: 0,
 			b: 0,
 		};
-		this.colorVary = true;
+		this.colorVary = colorVary;
 		this.size = spriteSize;
 		this.sprite = [];
 
@@ -165,7 +165,7 @@ class Sprite {
 	}
 }
 
-var sprite = new Sprite(size);
+var sprite = new Sprite(1, true, size);
 
 function resetCanvas() {
 	canvas.width = size * scale;
@@ -254,7 +254,7 @@ options.push({
 	cb: function(value) {
 		size = value;
 		resetCanvas();
-		sprite = new Sprite(size);
+		sprite = new Sprite(sprite.brushSize, sprite.colorVary, size);
 	},
 });
 
