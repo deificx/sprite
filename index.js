@@ -28,6 +28,10 @@ var configuration = {
     showGrid: false,
     size: tileSize.Medium
 };
+var mouse = {
+    x: 0,
+    y: 0
+};
 function rgb(color) {
     return 'rgb(' + color.r + ', ' + color.g + ', ' + color.b + ')';
 }
@@ -300,10 +304,17 @@ newOption.onclick = function () {
 };
 var saveOption = document.getElementById('option-save');
 saveOption.onclick = function () {
-    image = preview.toDataURL('image/png').replace('image/png', 'image/octet-stream');
+    var image = preview.toDataURL('image/png').replace('image/png', 'image/octet-stream');
     location.href = image;
 };
-var image = null;
+function renderBrush() {
+    ctx.beginPath();
+    ctx.strokeStyle = '#0f0';
+    ctx.lineWidth = 2;
+    ctx.arc(mouse.x, mouse.y, (configuration.brushSize * configuration.scale / 2), 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.closePath();
+}
 function update() {
     requestAnimationFrame(update);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -313,22 +324,29 @@ function update() {
     if (configuration.showGrid && configuration.scale != scaleSize.Original) {
         sprite.grid();
     }
+    renderBrush();
 }
 requestAnimationFrame(update);
-function draw(mouseEvent) {
+function draw() {
+    sprite.draw(Math.floor(mouse.x / configuration.scale), Math.floor(mouse.y / configuration.scale));
+}
+function setMouse(mouseEvent) {
     var rect = canvas.getBoundingClientRect();
-    var x = Math.floor((mouseEvent.clientX - rect.left) / configuration.scale);
-    var y = Math.floor((mouseEvent.clientY - rect.top) / configuration.scale);
-    sprite.draw(x, y);
+    mouse = {
+        x: mouseEvent.clientX - rect.left,
+        y: mouseEvent.clientY - rect.top
+    };
 }
 var drawing = false;
-canvas.onmousedown = function (event) {
+canvas.onmousedown = function (mouseEvent) {
+    setMouse(mouseEvent);
     drawing = true;
-    draw(event);
+    draw();
 };
-canvas.onmousemove = function (event) {
+canvas.onmousemove = function (mouseEvent) {
+    setMouse(mouseEvent);
     if (drawing) {
-        draw(event);
+        draw();
     }
 };
 canvas.onmouseup = function (event) {
