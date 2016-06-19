@@ -16,9 +16,17 @@ var tileSize;
     tileSize[tileSize["Medium"] = 32] = "Medium";
     tileSize[tileSize["Large"] = 64] = "Large";
 })(tileSize || (tileSize = {}));
-var scale = scaleSize.Medium;
-var size = tileSize.Medium;
-var showGrid = false;
+var configuration = {
+    brushSize: 1,
+    color: {
+        r: 0,
+        g: 0,
+        b: 0
+    },
+    scale: scaleSize.Medium,
+    showGrid: false,
+    size: tileSize.Medium
+};
 function rgb(color) {
     return 'rgb(' + color.r + ', ' + color.g + ', ' + color.b + ')';
 }
@@ -29,15 +37,8 @@ function clamp(n, min, max) {
     return n < min ? min : n > max ? max : n;
 }
 var Sprite = (function () {
-    function Sprite(brushSize, colorVary, spriteSize) {
-        this.brushSize = brushSize;
-        this.color = {
-            r: 0,
-            g: 0,
-            b: 0
-        };
+    function Sprite(colorVary) {
         this.colorVary = colorVary;
-        this.size = spriteSize;
         this.sprite = [];
         for (var i = 0; i < tileSize.Large; i++) {
             var columns = [];
@@ -62,9 +63,9 @@ var Sprite = (function () {
                 bVary = clamp(Math.round(Math.random() * 64 - 32), 0, 255);
             }
             this.sprite[x][y] = {
-                r: this.color.r + rVary,
-                g: this.color.g + gVary,
-                b: this.color.b + bVary
+                r: configuration.color.r + rVary,
+                g: configuration.color.g + gVary,
+                b: configuration.color.b + bVary
             };
         }
     };
@@ -79,8 +80,8 @@ var Sprite = (function () {
     Sprite.prototype.draw = function (x, y) {
         var _this = this;
         var neighbours = [{ x: x, y: y }];
-        for (var i = 1; i <= this.brushSize; i++) {
-            if (i < this.brushSize) {
+        for (var i = 1; i <= configuration.brushSize; i++) {
+            if (i < configuration.brushSize) {
                 neighbours.forEach(function (neighbour) {
                     neighbours = neighbours.concat(_this._neighbours(neighbour.x, neighbour.y));
                 });
@@ -93,22 +94,22 @@ var Sprite = (function () {
     Sprite.prototype.grid = function () {
         ctx.strokeStyle = rgba({ r: 128, g: 128, b: 128, a: 0.25 });
         ctx.lineWidth = 1;
-        for (var i = 0; i <= size; i++) {
+        for (var i = 0; i <= configuration.size; i++) {
             ctx.beginPath();
-            ctx.moveTo(i * scale, 0);
-            ctx.lineTo(i * scale, canvas.height);
+            ctx.moveTo(i * configuration.scale, 0);
+            ctx.lineTo(i * configuration.scale, canvas.height);
             ctx.closePath();
             ctx.stroke();
             ctx.beginPath();
-            ctx.moveTo(0, i * scale);
-            ctx.lineTo(canvas.height, i * scale);
+            ctx.moveTo(0, i * configuration.scale);
+            ctx.lineTo(canvas.height, i * configuration.scale);
             ctx.closePath();
             ctx.stroke();
         }
     };
     Sprite.prototype.preview = function () {
-        for (var i = 0; i < size; i++) {
-            for (var j = 0; j < size; j++) {
+        for (var i = 0; i < configuration.size; i++) {
+            for (var j = 0; j < configuration.size; j++) {
                 ctxP.beginPath();
                 ctxP.fillStyle = rgb(this.sprite[i][j]);
                 ctxP.fillRect(i, j, 1, 1);
@@ -117,41 +118,35 @@ var Sprite = (function () {
         }
     };
     Sprite.prototype.render = function () {
-        for (var i = 0; i < size; i++) {
-            for (var j = 0; j < size; j++) {
+        for (var i = 0; i < configuration.size; i++) {
+            for (var j = 0; j < configuration.size; j++) {
                 ctx.beginPath();
                 ctx.fillStyle = rgb(this.sprite[i][j]);
-                ctx.fillRect(i * scale, j * scale, scale, scale);
+                ctx.fillRect(i * configuration.scale, j * configuration.scale, configuration.scale, configuration.scale);
                 ctx.closePath();
             }
         }
-    };
-    Sprite.prototype.setBrushSize = function (size) {
-        this.brushSize = size;
-    };
-    Sprite.prototype.setColor = function (color) {
-        this.color = color;
     };
     Sprite.prototype.toggleColorVary = function () {
         this.colorVary = !this.colorVary;
     };
     return Sprite;
 })();
-var sprite = new Sprite(1, true, size);
+var sprite = new Sprite(true);
 function resetCanvas() {
-    canvas.width = size * scale;
-    canvas.height = size * scale;
-    preview.width = size;
-    preview.height = size;
+    canvas.width = configuration.size * configuration.scale;
+    canvas.height = configuration.size * configuration.scale;
+    preview.width = configuration.size;
+    preview.height = configuration.size;
 }
 resetCanvas();
 var color = new Ractive({
     el: '#color',
     template: '<div style="background-color:rgb({{red}},{{green}},{{blue}})"></div>',
     data: {
-        red: sprite.color.r,
-        green: sprite.color.g,
-        blue: sprite.color.b
+        red: configuration.color.r,
+        green: configuration.color.g,
+        blue: configuration.color.b
     }
 });
 var options = [];
@@ -180,7 +175,7 @@ options.push({
         }
     ],
     cb: function (value) {
-        scale = value;
+        configuration.scale = value;
         resetCanvas();
     }
 });
@@ -204,61 +199,49 @@ options.push({
         },
     ],
     cb: function (value) {
-        size = value;
+        configuration.size = value;
         resetCanvas();
     }
 });
 options.push({
     id: 'red',
     template: 'slider',
-    selected: sprite.color.r.toString(),
+    selected: configuration.color.r.toString(),
     cb: function (value, ractive) {
         ractive.set('title', 'Red (' + value + ')');
         color.set('red', value);
-        sprite.setColor({
-            r: value,
-            g: sprite.color.g,
-            b: sprite.color.b
-        });
+        configuration.color.r = value;
     }
 });
 options.push({
     id: 'green',
     template: 'slider',
-    selected: sprite.color.g.toString(),
+    selected: configuration.color.g.toString(),
     cb: function (value, ractive) {
         ractive.set('title', 'Green (' + value + ')');
         color.set('green', value);
-        sprite.setColor({
-            r: sprite.color.r,
-            g: value,
-            b: sprite.color.b
-        });
+        configuration.color.g = value;
     }
 });
 options.push({
     id: 'blue',
     template: 'slider',
-    selected: sprite.color.b.toString(),
+    selected: configuration.color.b.toString(),
     cb: function (value, ractive) {
         ractive.set('title', 'Blue (' + value + ')');
         color.set('blue', value);
-        sprite.setColor({
-            r: sprite.color.r,
-            g: sprite.color.g,
-            b: value
-        });
+        configuration.color.b = value;
     }
 });
 options.push({
     id: 'brush-size',
     template: 'slider',
-    selected: sprite.brushSize.toString(),
+    selected: configuration.brushSize.toString(),
     min: '1',
     max: '5',
     cb: function (value, ractive) {
         ractive.set('title', 'Brush Size (' + value + ')');
-        sprite.setBrushSize(value);
+        configuration.brushSize = value;
     }
 });
 options.push({
@@ -276,7 +259,7 @@ options.push({
     template: 'checkbox',
     selected: 'checked',
     cb: function () {
-        showGrid = !showGrid;
+        configuration.showGrid = !configuration.showGrid;
     }
 });
 options.forEach(function (option) {
@@ -298,7 +281,7 @@ options.forEach(function (option) {
 });
 var newOption = document.getElementById('option-new');
 newOption.onclick = function () {
-    sprite = new Sprite(sprite.brushSize, sprite.colorVary, size);
+    sprite = new Sprite(sprite.colorVary);
 };
 var saveOption = document.getElementById('option-save');
 saveOption.onclick = function () {
@@ -310,15 +293,15 @@ function update() {
     requestAnimationFrame(update);
     sprite.preview();
     sprite.render();
-    if (showGrid && scale != scaleSize.Original) {
+    if (configuration.showGrid && configuration.scale != scaleSize.Original) {
         sprite.grid();
     }
 }
 requestAnimationFrame(update);
 function draw(mouseEvent) {
     var rect = canvas.getBoundingClientRect();
-    var x = Math.floor((mouseEvent.clientX - rect.left) / scale);
-    var y = Math.floor((mouseEvent.clientY - rect.top) / scale);
+    var x = Math.floor((mouseEvent.clientX - rect.left) / configuration.scale);
+    var y = Math.floor((mouseEvent.clientY - rect.top) / configuration.scale);
     sprite.draw(x, y);
 }
 var drawing = false;
