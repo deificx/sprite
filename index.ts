@@ -39,6 +39,7 @@ var configuration: Configuration = {
 		r: 0,
 		g: 0,
 		b: 0,
+		a: 1,
 	},
 	scale: scaleSize.Medium,
 	showGrid: false,
@@ -69,9 +70,10 @@ class Sprite {
 			var columns = [];
 			for (var j = 0; j < tileSize.Large; j++) {
 				columns.push({
-					r: 255,
-					g: 255,
-					b: 255,
+					r: 128,
+					g: 128,
+					b: 128,
+					a: 0,
 				});
 			}
 			this.sprite.push(columns);
@@ -92,6 +94,7 @@ class Sprite {
 				r: configuration.color.r + rVary,
 				g: configuration.color.g + gVary,
 				b: configuration.color.b + bVary,
+				a: configuration.color.a,
 			};
 		}
 	}
@@ -140,7 +143,7 @@ class Sprite {
 		for (var i = 0; i < configuration.size; i++) {
 			for (var j = 0; j < configuration.size; j++) {
 				ctxP.beginPath();
-				ctxP.fillStyle = rgb(this.sprite[i][j]);
+				ctxP.fillStyle = rgba(this.sprite[i][j]);
 				ctxP.fillRect(i, j, 1, 1);
 				ctxP.closePath();
 			}
@@ -151,7 +154,7 @@ class Sprite {
 		for (var i = 0; i < configuration.size; i++) {
 			for (var j = 0; j < configuration.size; j++) {
 				ctx.beginPath();
-				ctx.fillStyle = rgb(this.sprite[i][j]);
+				ctx.fillStyle = rgba(this.sprite[i][j]);
 				ctx.fillRect(i * configuration.scale, j * configuration.scale, configuration.scale, configuration.scale);
 				ctx.closePath();
 			}
@@ -176,11 +179,12 @@ resetCanvas();
 
 const color = new Ractive({
 	el: '#color',
-	template: '<div style="background-color:rgb({{red}},{{green}},{{blue}})"></div>',
+	template: '<div style="background-color:rgba({{red}},{{green}},{{blue}},{{alpha}})"></div>',
 	data: {
 		red: configuration.color.r,
 		green: configuration.color.g,
 		blue: configuration.color.b,
+		alpha: configuration.color.a,
 	}
 });
 
@@ -289,6 +293,18 @@ options.push({
 });
 
 options.push({
+	id: 'alpha',
+	template: 'slider',
+	selected: Math.round(configuration.color.a * 100).toString(),
+	max: '100',
+	cb: function(value, ractive) {
+		ractive.set('title', 'Alpha (' + value + ')');
+		color.set('alpha', value / 100);
+		configuration.color.a = value / 100;
+	},
+});
+
+options.push({
 	id: 'brush-size',
 	template: 'slider',
 	selected: configuration.brushSize.toString(),
@@ -352,6 +368,8 @@ saveOption.onclick = function() {
 var image = null;
 function update() {
 	requestAnimationFrame(update);
+	ctx.clearRect(0, 0, canvas.width, canvas.height);
+	ctxP.clearRect(0, 0, preview.width, preview.height);
 	sprite.preview();
 	sprite.render();
 	if (configuration.showGrid && configuration.scale != scaleSize.Original) {
