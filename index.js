@@ -6,9 +6,9 @@ var ctxP = preview.getContext('2d');
 var scaleSize;
 (function (scaleSize) {
     scaleSize[scaleSize["Original"] = 1] = "Original";
-    scaleSize[scaleSize["Small"] = 4] = "Small";
-    scaleSize[scaleSize["Medium"] = 8] = "Medium";
-    scaleSize[scaleSize["Large"] = 16] = "Large";
+    scaleSize[scaleSize["Small"] = 8] = "Small";
+    scaleSize[scaleSize["Medium"] = 16] = "Medium";
+    scaleSize[scaleSize["Large"] = 24] = "Large";
 })(scaleSize || (scaleSize = {}));
 var tileSize;
 (function (tileSize) {
@@ -39,9 +39,9 @@ var Sprite = (function () {
         this.colorVary = colorVary;
         this.size = spriteSize;
         this.sprite = [];
-        for (var i = 0; i < this.size; i++) {
+        for (var i = 0; i < tileSize.Large; i++) {
             var columns = [];
-            for (var j = 0; j < this.size; j++) {
+            for (var j = 0; j < tileSize.Large; j++) {
                 columns.push({
                     r: 255,
                     g: 255,
@@ -206,7 +206,6 @@ options.push({
     cb: function (value) {
         size = value;
         resetCanvas();
-        sprite = new Sprite(sprite.brushSize, sprite.colorVary, size);
     }
 });
 options.push({
@@ -257,7 +256,8 @@ options.push({
     selected: sprite.brushSize.toString(),
     min: '1',
     max: '5',
-    cb: function (value) {
+    cb: function (value, ractive) {
+        ractive.set('title', 'Brush Size (' + value + ')');
         sprite.setBrushSize(value);
     }
 });
@@ -296,6 +296,10 @@ options.forEach(function (option) {
         option.cb(newValue, _options[option.id]);
     });
 });
+var newOption = document.getElementById('option-new');
+newOption.onclick = function () {
+    sprite = new Sprite(sprite.brushSize, sprite.colorVary, size);
+};
 var saveOption = document.getElementById('option-save');
 saveOption.onclick = function () {
     image = preview.toDataURL('image/png').replace('image/png', 'image/octet-stream');

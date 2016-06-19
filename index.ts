@@ -7,9 +7,9 @@ var ctxP: CanvasRenderingContext2D = preview.getContext('2d');
 
 enum scaleSize {
 	Original = 1,
-	Small = 4,
-	Medium = 8,
-	Large = 16,
+	Small = 8,
+	Medium = 16,
+	Large = 24,
 }
 
 enum tileSize {
@@ -59,9 +59,9 @@ class Sprite {
 		this.size = spriteSize;
 		this.sprite = [];
 
-		for (var i = 0; i < this.size; i++) {
+		for (var i = 0; i < tileSize.Large; i++) {
 			var columns = [];
-			for (var j = 0; j < this.size; j++) {
+			for (var j = 0; j < tileSize.Large; j++) {
 				columns.push({
 					r: 255,
 					g: 255,
@@ -254,7 +254,6 @@ options.push({
 	cb: function(value) {
 		size = value;
 		resetCanvas();
-		sprite = new Sprite(sprite.brushSize, sprite.colorVary, size);
 	},
 });
 
@@ -309,7 +308,8 @@ options.push({
 	selected: sprite.brushSize.toString(),
 	min: '1',
 	max: '5',
-	cb: function(value) {
+	cb: function(value, ractive) {
+		ractive.set('title', 'Brush Size (' + value + ')');
 		sprite.setBrushSize(value);
 	}
 });
@@ -351,6 +351,11 @@ options.forEach((option) => {
 		option.cb(newValue, _options[option.id]);
 	});
 });
+
+var newOption = <HTMLButtonElement>document.getElementById('option-new');
+newOption.onclick = function() {
+	sprite = new Sprite(sprite.brushSize, sprite.colorVary, size);
+}
 
 var saveOption = <HTMLButtonElement>document.getElementById('option-save');
 saveOption.onclick = function() {
