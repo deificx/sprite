@@ -1,6 +1,11 @@
 node_modules/
 typings/
 
+npm-debug.log
+
+index.css
+index.css.map
+
 index.js
 index.js.map
 index.min.js
