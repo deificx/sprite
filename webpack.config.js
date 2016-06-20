@@ -21,7 +21,7 @@ module.exports = {
 	plugins: [
 		new ExtractTextPlugin("index.css"),
 		new HtmlWebpackPlugin({
-			favicon: 'favicon.ico',
+			favicon: 'graphics/favicon.ico',
 		}),
 	],
 };
