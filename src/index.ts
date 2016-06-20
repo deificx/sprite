@@ -10,6 +10,7 @@ require('./index.css');
 import html from './html.ts';
 import templates from './templates.ts';
 import Ractive = require('ractive');
+Ractive.DEBUG = false;
 
 var ctx: CanvasRenderingContext2D = html.canvas.getContext('2d');
 var ctxP: CanvasRenderingContext2D = html.preview.getContext('2d');
