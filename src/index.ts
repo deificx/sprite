@@ -1,9 +1,19 @@
-/// <reference path="typings/index.d.ts" />
+/// <reference path="../typings/index.d.ts" />
 
-var canvas = <HTMLCanvasElement>document.getElementById('sprite-editor');
-var preview = <HTMLCanvasElement>document.getElementById('sprite-preview');
-var ctx: CanvasRenderingContext2D = canvas.getContext('2d');
-var ctxP: CanvasRenderingContext2D = preview.getContext('2d');
+declare var require: {
+    <T>(path: string): T;
+    (paths: string[], callback: (...modules: any[]) => void): void;
+    ensure: (paths: string[], callback: (require: <T>(path: string) => T) => void) => void;
+};
+
+require('./index.css');
+import html from './html.ts';
+import templates from './templates.ts';
+import Ractive = require('ractive');
+Ractive.DEBUG = false;
+
+var ctx: CanvasRenderingContext2D = html.canvas.getContext('2d');
+var ctxP: CanvasRenderingContext2D = html.preview.getContext('2d');
 
 enum scaleSize {
 	Original = 1,
@@ -138,12 +148,12 @@ class Sprite {
 		for (var i = 0; i <= configuration.size; i++) {
 			ctx.beginPath();
 			ctx.moveTo(i * configuration.scale, 0);
-			ctx.lineTo(i * configuration.scale, canvas.height);
+			ctx.lineTo(i * configuration.scale, html.canvas.height);
 			ctx.closePath();
 			ctx.stroke();
 			ctx.beginPath();
 			ctx.moveTo(0, i * configuration.scale);
-			ctx.lineTo(canvas.height, i * configuration.scale);
+			ctx.lineTo(html.canvas.height, i * configuration.scale);
 			ctx.closePath();
 			ctx.stroke();
 		}
@@ -179,10 +189,10 @@ class Sprite {
 var sprite = new Sprite(true);
 
 function resetCanvas() {
-	canvas.width = configuration.size * configuration.scale;
-	canvas.height = configuration.size * configuration.scale;
-	preview.width = configuration.size;
-	preview.height = configuration.size;
+	html.canvas.width = configuration.size * configuration.scale;
+	html.canvas.height = configuration.size * configuration.scale;
+	html.preview.width = configuration.size;
+	html.preview.height = configuration.size;
 }
 
 resetCanvas();
@@ -216,9 +226,86 @@ const options: Array<Option> = [];
 const _options: Object = {};
 
 options.push({
+	id: 'red',
+	template: templates.slider,
+	selected: configuration.color.r.toString(),
+	cb: function(value, ractive) {
+		ractive.set('title', 'Red (' + value + ')');
+		color.set('red', value);
+		configuration.color.r = value;
+	},
+});
+
+options.push({
+	id: 'green',
+	template: templates.slider,
+	selected: configuration.color.g.toString(),
+	cb: function(value, ractive) {
+		ractive.set('title', 'Green (' + value + ')');
+		color.set('green', value);
+		configuration.color.g = value;
+	},
+});
+
+options.push({
+	id: 'blue',
+	template: templates.slider,
+	selected: configuration.color.b.toString(),
+	cb: function(value, ractive) {
+		ractive.set('title', 'Blue (' + value + ')');
+		color.set('blue', value);
+		configuration.color.b = value;
+	},
+});
+
+options.push({
+	id: 'alpha',
+	template: templates.slider,
+	selected: Math.round(configuration.color.a * 100).toString(),
+	max: '100',
+	cb: function(value, ractive) {
+		ractive.set('title', 'Alpha (' + value + ')');
+		color.set('alpha', value / 100);
+		configuration.color.a = value / 100;
+	},
+});
+
+options.push({
+	id: 'brush-size',
+	template: templates.slider,
+	selected: configuration.brushSize.toString(),
+	min: '1',
+	max: '5',
+	cb: function(value, ractive) {
+		ractive.set('title', 'Brush Size (' + value + ')');
+		configuration.brushSize = value;
+	}
+});
+
+options.push({
+	id: 'color-variation',
+	title: 'Color Variation',
+	template: templates.checkbox,
+	selected: '',
+	cb: function() {
+		sprite.toggleColorVary();
+	}
+});
+
+options.push({
+	id: 'grid',
+	title: 'Show Grid',
+	template: templates.checkbox,
+	selected: 'checked',
+	cb: function() {
+		configuration.showGrid = !configuration.showGrid;
+	}
+});
+
+options.push({
 	id: 'pixel-scale',
 	title: 'Pixel Scale',
-	template: 'dropdown',
+	template: templates.dropdown,
 	selected: scaleSize.Medium.toString(),
 	options: [
 		{
@@ -247,7 +334,7 @@ options.push({
 options.push({
 	id: 'sprite-size',
 	title: 'Sprite Size',
-	template: 'dropdown',
+	template: templates.dropdown,
 	selected: tileSize.Medium.toString(),
 	options: [
 		{
@@ -269,87 +356,14 @@ options.push({
 	},
 });
 
-options.push({
-	id: 'red',
-	template: 'slider',
-	selected: configuration.color.r.toString(),
-	cb: function(value, ractive) {
-		ractive.set('title', 'Red (' + value + ')');
-		color.set('red', value);
-		configuration.color.r = value;
-	},
-});
-
-options.push({
-	id: 'green',
-	template: 'slider',
-	selected: configuration.color.g.toString(),
-	cb: function(value, ractive) {
-		ractive.set('title', 'Green (' + value + ')');
-		color.set('green', value);
-		configuration.color.g = value;
-	},
-});
-
-options.push({
-	id: 'blue',
-	template: 'slider',
-	selected: configuration.color.b.toString(),
-	cb: function(value, ractive) {
-		ractive.set('title', 'Blue (' + value + ')');
-		color.set('blue', value);
-		configuration.color.b = value;
-	},
-});
-
-options.push({
-	id: 'alpha',
-	template: 'slider',
-	selected: Math.round(configuration.color.a * 100).toString(),
-	max: '100',
-	cb: function(value, ractive) {
-		ractive.set('title', 'Alpha (' + value + ')');
-		color.set('alpha', value / 100);
-		configuration.color.a = value / 100;
-	},
-});
-
-options.push({
-	id: 'brush-size',
-	template: 'slider',
-	selected: configuration.brushSize.toString(),
-	min: '1',
-	max: '5',
-	cb: function(value, ractive) {
-		ractive.set('title', 'Brush Size (' + value + ')');
-		configuration.brushSize = value;
-	}
-});
-
-options.push({
-	id: 'color-variation',
-	title: 'Color Variation',
-	template: 'checkbox',
-	selected: '',
-	cb: function() {
-		sprite.toggleColorVary();
-	}
-});
-
-options.push({
-	id: 'grid',
-	title: 'Show Grid',
-	template: 'checkbox',
-	selected: 'checked',
-	cb: function() {
-		configuration.showGrid = !configuration.showGrid;
-	}
-});
-
 options.forEach((option) => {
+	const div = <HTMLDivElement>document.createElement('div');
+	div.id = 'option-' + option.id;
+	html.toolbar.appendChild(div);
+
 	_options[option.id] = new Ractive({
 		el: '#option-' + option.id,
-		template: '#' + option.template,
+		template: option.template,
 		data: {
 			id: option.id,
 			title: option.title || option.id,
@@ -364,16 +378,28 @@ options.forEach((option) => {
 	});
 });
 
-var newOption = <HTMLButtonElement>document.getElementById('option-new');
+var newOption = <HTMLButtonElement>document.createElement('button');
+newOption.id = 'option-new';
+newOption.innerHTML = 'New';
 newOption.onclick = function() {
 	sprite = new Sprite(sprite.colorVary);
 }
 
-var saveOption = <HTMLButtonElement>document.getElementById('option-save');
+html.toolbar.appendChild(newOption);
+
+var saveOption = <HTMLButtonElement>document.createElement('button');
+saveOption.id = 'option-save';
+saveOption.innerHTML = 'Download';
 saveOption.onclick = function() {
-	var image = preview.toDataURL('image/png').replace('image/png', 'image/octet-stream');
+	var image = html.preview.toDataURL('image/png').replace('image/png', 'image/octet-stream');
 	location.href = image;
 }
+
+html.toolbar.appendChild(saveOption);
+
+var link = <HTMLParagraphElement>document.createElement('p');
+link.innerHTML = '<a href="https://github.com/deificx/sprite">project on github</a>';
+html.toolbar.appendChild(link);
 
 function renderBrush() {
 	ctx.beginPath();
@@ -386,8 +412,8 @@ function renderBrush() {
 
 function update() {
 	requestAnimationFrame(update);
-	ctx.clearRect(0, 0, canvas.width, canvas.height);
-	ctxP.clearRect(0, 0, preview.width, preview.height);
+	ctx.clearRect(0, 0, html.canvas.width, html.canvas.height);
+	ctxP.clearRect(0, 0, html.preview.width, html.preview.height);
 	sprite.preview();
 	sprite.render();
 	if (configuration.showGrid && configuration.scale != scaleSize.Original) {
@@ -403,7 +429,7 @@ function draw() {
 }
 
 function setMouse(mouseEvent: MouseEvent) {
-	var rect = canvas.getBoundingClientRect();
+	var rect = html.canvas.getBoundingClientRect();
 	mouse = {
 		x: mouseEvent.clientX - rect.left,
 		y: mouseEvent.clientY - rect.top,
@@ -412,23 +438,23 @@ function setMouse(mouseEvent: MouseEvent) {
 
 var drawing = false;
 
-canvas.onmousedown = function(mouseEvent: MouseEvent) {
+html.canvas.onmousedown = function(mouseEvent: MouseEvent) {
 	setMouse(mouseEvent);
 	drawing = true;
 	draw();
 };
 
-canvas.onmousemove = function(mouseEvent: MouseEvent) {
+html.canvas.onmousemove = function(mouseEvent: MouseEvent) {
 	setMouse(mouseEvent);
 	if (drawing) {
 		draw();
 	}
 };
 
-canvas.onmouseup = function(event) {
+html.canvas.onmouseup = function(event) {
 	drawing = false;
 };
 
-canvas.onmouseleave = function(event) {
+html.canvas.onmouseleave = function(event) {
 	drawing = false;
 };
