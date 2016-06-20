@@ -1,4 +1,6 @@
-/// <reference path="typings/index.d.ts" />
+/// <reference path="../typings/index.d.ts" />
+
+import Ractive = require('ractive');
 
 var canvas = <HTMLCanvasElement>document.getElementById('sprite-editor');
 var preview = <HTMLCanvasElement>document.getElementById('sprite-preview');
