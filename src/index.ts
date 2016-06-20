@@ -225,60 +225,6 @@ const options: Array<Option> = [];
 const _options: Object = {};
 
 options.push({
-	id: 'pixel-scale',
-	title: 'Pixel Scale',
-	template: templates.dropdown,
-	selected: scaleSize.Medium.toString(),
-	options: [
-		{
-			value: scaleSize.Original.toString(),
-			label: 'Original',
-		},
-		{
-			value: scaleSize.Small.toString(),
-			label: 'Small (' + scaleSize.Small + ')',
-		},
-		{
-			value: scaleSize.Medium.toString(),
-			label: 'Medium (' + scaleSize.Medium + ')',
-		},
-		{
-			value: scaleSize.Large.toString(),
-			label: 'Large (' + scaleSize.Large + ')',
-		}
-	],
-	cb: function(value) {
-		configuration.scale = value;
-		resetCanvas();
-	},
-});
-
-options.push({
-	id: 'sprite-size',
-	title: 'Sprite Size',
-	template: templates.dropdown,
-	selected: tileSize.Medium.toString(),
-	options: [
-		{
-			value: tileSize.Small.toString(),
-			label: 'Small (' + tileSize.Small + 'x' + tileSize.Small + ')',
-		},
-		{
-			value: tileSize.Medium.toString(),
-			label: 'Medium (' + tileSize.Medium + 'x' + tileSize.Medium + ')',
-		},
-		{
-			value: tileSize.Large.toString(),
-			label: 'Large (' + tileSize.Large + 'x' + tileSize.Large + ')',
-		},
-	],
-	cb: function(value) {
-		configuration.size = value;
-		resetCanvas();
-	},
-});
-
-options.push({
 	id: 'red',
 	template: templates.slider,
 	selected: configuration.color.r.toString(),
@@ -355,12 +301,63 @@ options.push({
 	}
 });
 
+options.push({
+	id: 'pixel-scale',
+	title: 'Pixel Scale',
+	template: templates.dropdown,
+	selected: scaleSize.Medium.toString(),
+	options: [
+		{
+			value: scaleSize.Original.toString(),
+			label: 'Original',
+		},
+		{
+			value: scaleSize.Small.toString(),
+			label: 'Small (' + scaleSize.Small + ')',
+		},
+		{
+			value: scaleSize.Medium.toString(),
+			label: 'Medium (' + scaleSize.Medium + ')',
+		},
+		{
+			value: scaleSize.Large.toString(),
+			label: 'Large (' + scaleSize.Large + ')',
+		}
+	],
+	cb: function(value) {
+		configuration.scale = value;
+		resetCanvas();
+	},
+});
+
+options.push({
+	id: 'sprite-size',
+	title: 'Sprite Size',
+	template: templates.dropdown,
+	selected: tileSize.Medium.toString(),
+	options: [
+		{
+			value: tileSize.Small.toString(),
+			label: 'Small (' + tileSize.Small + 'x' + tileSize.Small + ')',
+		},
+		{
+			value: tileSize.Medium.toString(),
+			label: 'Medium (' + tileSize.Medium + 'x' + tileSize.Medium + ')',
+		},
+		{
+			value: tileSize.Large.toString(),
+			label: 'Large (' + tileSize.Large + 'x' + tileSize.Large + ')',
+		},
+	],
+	cb: function(value) {
+		configuration.size = value;
+		resetCanvas();
+	},
+});
+
 options.forEach((option) => {
 	const div = <HTMLDivElement>document.createElement('div');
 	div.id = 'option-' + option.id;
-	if (option.id === 'red') {
-		html.toolbar.appendChild(html.color);
-	}
 	html.toolbar.appendChild(div);
 
 	_options[option.id] = new Ractive({

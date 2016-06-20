@@ -13,6 +13,7 @@ const toolbar = <HTMLDivElement>document.createElement('div');
 toolbar.id = "toolbar";
 
 toolbar.appendChild(preview);
+toolbar.appendChild(color);
 
 document.body.appendChild(canvas);
 document.body.appendChild(toolbar);
