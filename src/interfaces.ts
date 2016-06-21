@@ -8,6 +8,9 @@ export interface RGBA {
 export interface Configuration {
 	brushSize: number,
 	color: RGBA,
+	colorVary: boolean,
+	ctx: CanvasRenderingContext2D,
+	ctxP: CanvasRenderingContext2D,
 	scale: number,
 	showGrid: boolean,
 	size: number,
