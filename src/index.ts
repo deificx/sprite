@@ -50,8 +50,8 @@ var sprite = new Sprite(html.canvas, config);
 function resetCanvas() {
 	html.canvas.width = config.size * config.scale;
 	html.canvas.height = config.size * config.scale;
-	html.preview.width = config.size;
-	html.preview.height = config.size;
+	html.preview.width = config.size * 3;
+	html.preview.height = config.size * 3;
 }
 
 resetCanvas();
@@ -250,8 +250,13 @@ var saveOption = <HTMLButtonElement>document.createElement('button');
 saveOption.id = 'option-save';
 saveOption.innerHTML = 'Download';
 saveOption.onclick = function() {
+	html.preview.width = config.size;
+	html.preview.height = config.size;
+	sprite.preview(true);
 	var image = html.preview.toDataURL('image/png').replace('image/png', 'image/octet-stream');
 	location.href = image;
+	html.preview.width = config.size * 3;
+	html.preview.height = config.size * 3;
 }
 
 html.toolbar.appendChild(saveOption);
@@ -273,7 +278,7 @@ function update() {
 	requestAnimationFrame(update);
 	config.ctx.clearRect(0, 0, html.canvas.width, html.canvas.height);
 	config.ctxP.clearRect(0, 0, html.preview.width, html.preview.height);
-	sprite.preview();
+	sprite.preview(false);
 	sprite.render();
 	if (config.showGrid && config.scale != scaleSize.Original) {
 		sprite.grid();

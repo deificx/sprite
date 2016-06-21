@@ -98,14 +98,25 @@ export default class Sprite {
 		}
 	}
 
-	preview() {
-		for (var i = 0; i < this.config.size; i++) {
-			for (var j = 0; j < this.config.size; j++) {
+	preview(once: boolean) {
+		for (let i = 0; i < this.config.size; i++) {
+			for (let j = 0; j < this.config.size; j++) {
 				this.config.ctxP.beginPath();
 				this.config.ctxP.fillStyle = rgba(this.sprite[i][j]);
 				this.config.ctxP.fillRect(i, j, 1, 1);
 				this.config.ctxP.closePath();
 			}
+		}
+		if (!once) {
+			const tile = this.config.ctxP.getImageData(0, 0, this.config.size, this.config.size);
+			this.config.ctxP.putImageData(tile, this.config.size, 0);
+			this.config.ctxP.putImageData(tile, this.config.size * 2, 0);
+			this.config.ctxP.putImageData(tile, this.config.size * 2, this.config.size);
+			this.config.ctxP.putImageData(tile, this.config.size * 2, this.config.size * 2);
+			this.config.ctxP.putImageData(tile, 0, this.config.size);
+			this.config.ctxP.putImageData(tile, 0, this.config.size * 2);
+			this.config.ctxP.putImageData(tile, this.config.size, this.config.size);
+			this.config.ctxP.putImageData(tile, this.config.size, this.config.size * 2);
 		}
 	}
 
