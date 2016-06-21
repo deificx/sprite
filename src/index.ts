@@ -1,9 +1,9 @@
 /// <reference path="../typings/index.d.ts" />
 
 declare var require: {
-    <T>(path: string): T;
-    (paths: string[], callback: (...modules: any[]) => void): void;
-    ensure: (paths: string[], callback: (require: <T>(path: string) => T) => void) => void;
+	<T>(path: string): T;
+	(paths: string[], callback: (...modules: any[]) => void): void;
+	ensure: (paths: string[], callback: (require: <T>(path: string) => T) => void) => void;
 };
 
 require('./index.css');
@@ -12,36 +12,19 @@ import templates from './templates.ts';
 import Ractive = require('ractive');
 Ractive.DEBUG = false;
 
+import {
+	Configuration,
+	MousePos,
+	RGBA,
+} from './interfaces.ts';
+
+import {
+	scaleSize,
+	tileSize,
+} from './enums.ts';
+
 var ctx: CanvasRenderingContext2D = html.canvas.getContext('2d');
 var ctxP: CanvasRenderingContext2D = html.preview.getContext('2d');
-
-enum scaleSize {
-	Original = 1,
-	Small = 8,
-	Medium = 16,
-	Large = 24,
-}
-
-enum tileSize {
-	Small = 16,
-	Medium = 32,
-	Large = 64
-}
-
-interface RGBA {
-	r?: number,
-	g?: number,
-	b?: number,
-	a?: number,
-}
-
-interface Configuration {
-	brushSize: number,
-	color: RGBA,
-	scale: number,
-	showGrid: boolean,
-	size: number,
-}
 
 var configuration: Configuration = {
 	brushSize: 1,
@@ -56,19 +39,10 @@ var configuration: Configuration = {
 	size: tileSize.Medium,
 };
 
-interface MousePos {
-	x: number,
-	y: number,
-}
-
 var mouse: MousePos = {
 	x: 0,
 	y: 0,
 };
-
-function rgb(color: RGBA) {
-	return 'rgb(' + color.r + ', ' + color.g + ', ' + color.b + ')';
-}
 
 function rgba(color: RGBA) {
 	return 'rgba(' + color.r + ', ' + color.g + ', ' + color.b + ',' + color.a + ')';
