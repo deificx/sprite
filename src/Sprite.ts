@@ -16,7 +16,7 @@ function clamp(n, min, max) {
 }
 
 export default class Sprite {
-	canvas: HTMLCanvasElement,
+	canvas: HTMLCanvasElement;
 	config: Configuration;
 	sprite: Array<Array<RGBA>>;
 
