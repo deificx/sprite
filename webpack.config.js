@@ -22,6 +22,7 @@ module.exports = {
 		new ExtractTextPlugin("index.css"),
 		new HtmlWebpackPlugin({
 			favicon: 'graphics/favicon.ico',
+			title: 'Sprite',
 		}),
 	],
 };
