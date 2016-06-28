@@ -52,10 +52,10 @@
 	__webpack_require__(/*! ./index.css */ 1);
 	var html_ts_1 = __webpack_require__(/*! ./html.ts */ 5);
 	var templates_ts_1 = __webpack_require__(/*! ./templates.ts */ 6);
-	var Sprite_ts_1 = __webpack_require__(/*! ./Sprite.ts */ 10);
-	var Ractive = __webpack_require__(/*! ractive */ 7);
+	var Sprite_ts_1 = __webpack_require__(/*! ./Sprite.ts */ 7);
+	var Ractive = __webpack_require__(/*! ractive */ 10);
 	Ractive.DEBUG = false;
-	var enums_ts_1 = __webpack_require__(/*! ./enums.ts */ 9);
+	var enums_ts_1 = __webpack_require__(/*! ./enums.ts */ 8);
 	var config = {
 	    brushSize: 1,
 	    color: {
@@ -85,7 +85,17 @@
 	resetCanvas();
 	var color = new Ractive({
 	    el: '#color',
-	    template: '<div style="background-color:rgba({{red}},{{green}},{{blue}},{{alpha}})"></div>',
+	    template: 'Selected Color <div style="background-color:rgba({{red}},{{green}},{{blue}},{{alpha}})"></div>',
+	    data: {
+	        red: config.color.r,
+	        green: config.color.g,
+	        blue: config.color.b,
+	        alpha: config.color.a
+	    }
+	});
+	var eyeDropper = new Ractive({
+	    el: '#eyeDropper',
+	    template: 'Eye Dropper (e)<div style="background-color:rgba({{red}},{{green}},{{blue}},{{alpha}})"></div>',
 	    data: {
 	        red: config.color.r,
 	        green: config.color.g,
@@ -102,7 +112,7 @@
 	    cb: function (value, ractive) {
 	        ractive.set('title', 'Red (' + value + ')');
 	        color.set('red', value);
-	        config.color.r = value;
+	        config.color.r = parseInt(value, 10);
 	    }
 	});
 	options.push({
@@ -112,7 +122,7 @@
 	    cb: function (value, ractive) {
 	        ractive.set('title', 'Green (' + value + ')');
 	        color.set('green', value);
-	        config.color.g = value;
+	        config.color.g = parseInt(value, 10);
 	    }
 	});
 	options.push({
@@ -122,7 +132,7 @@
 	    cb: function (value, ractive) {
 	        ractive.set('title', 'Blue (' + value + ')');
 	        color.set('blue', value);
-	        config.color.b = value;
+	        config.color.b = parseInt(value, 10);
 	    }
 	});
 	options.push({
@@ -136,17 +146,17 @@
 	        config.color.a = value / 100;
 	    }
 	});
-	options.push({
-	    id: 'brush-size',
-	    template: templates_ts_1["default"].slider,
-	    selected: config.brushSize.toString(),
-	    min: '1',
-	    max: '5',
-	    cb: function (value, ractive) {
-	        ractive.set('title', 'Brush Size (' + value + ')');
-	        config.brushSize = value;
-	    }
-	});
+	// options.push({
+	// 	id: 'brush-size',
+	// 	template: templates.slider,
+	// 	selected: config.brushSize.toString(),
+	// 	min: '1',
+	// 	max: '5',
+	// 	cb: function(value, ractive) {
+	// 		ractive.set('title', 'Brush Size (' + value + ')');
+	// 		config.brushSize = parseInt(value, 10);;
+	// 	}
+	// });
 	options.push({
 	    id: 'color-variation',
 	    title: 'Color Variation',
@@ -280,8 +290,11 @@
 	    renderBrush();
 	}
 	requestAnimationFrame(update);
-	function draw() {
-	    sprite.draw(Math.floor(mouse.x / config.scale), Math.floor(mouse.y / config.scale));
+	function getX() {
+	    return Math.floor(mouse.x / config.scale);
+	}
+	function getY() {
+	    return Math.floor(mouse.y / config.scale);
 	}
 	function setMouse(mouseEvent) {
 	    var rect = html_ts_1["default"].canvas.getBoundingClientRect();
@@ -290,24 +303,39 @@
 	        y: mouseEvent.clientY - rect.top
 	    };
 	}
-	var drawing = false;
 	html_ts_1["default"].canvas.onmousedown = function (mouseEvent) {
 	    setMouse(mouseEvent);
-	    drawing = true;
-	    draw();
+	    sprite.startDrawing();
+	    sprite.draw(getX(), getY());
 	};
 	html_ts_1["default"].canvas.onmousemove = function (mouseEvent) {
 	    setMouse(mouseEvent);
-	    if (drawing) {
-	        draw();
+	    if (sprite.drawing) {
+	        sprite.draw(getX(), getY());
+	    }
+	    else {
+	        var c = sprite.eyeDropper(getX(), getY());
+	        eyeDropper.set('red', c.r);
+	        eyeDropper.set('green', c.g);
+	        eyeDropper.set('blue', c.b);
+	        eyeDropper.set('alpha', c.a);
 	    }
 	};
 	html_ts_1["default"].canvas.onmouseup = function (event) {
-	    drawing = false;
+	    sprite.stopDrawing();
 	};
 	html_ts_1["default"].canvas.onmouseleave = function (event) {
-	    drawing = false;
+	    sprite.stopDrawing();
 	};
+	document.addEventListener('keydown', function (event) {
+	    if (event.key === 'e') {
+	        var c = sprite.eyeDropper(getX(), getY());
+	        _options['red'].set('selectedValue', c.r);
+	        _options['green'].set('selectedValue', c.g);
+	        _options['blue'].set('selectedValue', c.b);
+	        _options['alpha'].set('selectedValue', c.a * 100);
+	    }
+	});
 
 
 /***/ },
@@ -337,15 +365,19 @@
 	preview.id = "sprite-preview";
 	var color = document.createElement('div');
 	color.id = "color";
+	var eyeDropper = document.createElement('div');
+	eyeDropper.id = "eyeDropper";
 	var toolbar = document.createElement('div');
 	toolbar.id = "toolbar";
 	toolbar.appendChild(preview);
 	toolbar.appendChild(color);
+	toolbar.appendChild(eyeDropper);
 	document.body.appendChild(canvas);
 	document.body.appendChild(toolbar);
 	var html = {
 	    canvas: canvas,
 	    color: color,
+	    eyeDropper: eyeDropper,
 	    preview: preview,
 	    toolbar: toolbar
 	};
@@ -361,20 +393,9 @@
 /***/ function(module, exports) {
 
 	"use strict";
-	var checkbox = '' +
-	    '		<label for="{{id}}" class="checkbox">\n' +
-	    '			<input type="checkbox" id="{{id}}" checked="{{selectedValue}}"> {{title}}\n' +
-	    '		</label>\n';
-	var dropdown = '' +
-	    '		<label for="{{id}}">{{title}}</label>\n' +
-	    '		<select id="{{id}}" value="{{selectedValue}}" >\n' +
-	    '			{{#options }}\n' +
-	    '			<option value={{this.value}}>{{this.label}}</option>\n' +
-	    '			{{/options}}\n' +
-	    '		</select>\n';
-	var slider = '' +
-	    '		<label for="{{id}}">{{title}}</label>\n' +
-	    '		<input type="range" id="{{id}}" min="{{min}}" max="{{max}}" value={{selectedValue}} />\n';
+	var checkbox = "\n\t\t<label for=\"{{id}}\" class=\"checkbox\">\n\t\t\t<input type=\"checkbox\" id=\"{{id}}\" checked=\"{{selectedValue}}\"> {{title}}\n\t\t</label>";
+	var dropdown = "\n\t\t<label for=\"{{id}}\">{{title}}</label>\n\t\t<select id=\"{{id}}\" value=\"{{selectedValue}}\" >\n\t\t\t{{#options }}\n\t\t\t<option value={{this.value}}>{{this.label}}</option>\n\t\t\t{{/options}}\n\t\t</select>";
+	var slider = "\n\t\t<label for=\"{{id}}\">{{title}}</label>\n\t\t<input type=\"range\" id=\"{{id}}\" min=\"{{min}}\" max=\"{{max}}\" value={{selectedValue}} />";
 	var templates = {
 	    checkbox: checkbox,
 	    dropdown: dropdown,
@@ -386,6 +407,226 @@
 
 /***/ },
 /* 7 */
+/*!***********************!*\
+  !*** ./src/Sprite.ts ***!
+  \***********************/
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var enums_ts_1 = __webpack_require__(/*! ./enums.ts */ 8);
+	var Pixel_ts_1 = __webpack_require__(/*! ./Pixel.ts */ 9);
+	var Sprite = (function () {
+	    function Sprite(canvas, config) {
+	        this.canvas = canvas;
+	        this.config = config;
+	        this.drawing = false;
+	        this.sprite = [];
+	        this.touching = '';
+	        for (var i = 0; i < enums_ts_1.tileSize.Large; i++) {
+	            var columns = [];
+	            for (var j = 0; j < enums_ts_1.tileSize.Large; j++) {
+	                columns.push(new Pixel_ts_1["default"]());
+	            }
+	            this.sprite.push(columns);
+	        }
+	    }
+	    Sprite.prototype._draw = function (x, y) {
+	        if (typeof this.sprite[x] !== 'undefined' &&
+	            typeof this.sprite[x][y] !== 'undefined' &&
+	            this.touching !== 'x' + x + 'y' + y) {
+	            this.touching = 'x' + x + 'y' + y;
+	            this.sprite[x][y].setColor(this.config.color, this.config.colorVary);
+	        }
+	    };
+	    Sprite.prototype.draw = function (x, y) {
+	        this._draw(x, y);
+	    };
+	    Sprite.prototype.eyeDropper = function (x, y) {
+	        if (typeof this.sprite[x] !== 'undefined' &&
+	            typeof this.sprite[x][y] !== 'undefined' &&
+	            !this.sprite[x][y].empty) {
+	            return {
+	                r: this.sprite[x][y].r(),
+	                g: this.sprite[x][y].g(),
+	                b: this.sprite[x][y].b(),
+	                a: this.sprite[x][y].a()
+	            };
+	        }
+	        return {
+	            r: this.config.color.r,
+	            g: this.config.color.g,
+	            b: this.config.color.b,
+	            a: this.config.color.a
+	        };
+	    };
+	    Sprite.prototype.grid = function () {
+	        this.config.ctx.strokeStyle = 'rgba(128, 128, 128, 0.25)';
+	        this.config.ctx.lineWidth = 1;
+	        for (var i = 0; i <= this.config.size; i++) {
+	            this.config.ctx.beginPath();
+	            this.config.ctx.moveTo(i * this.config.scale, 0);
+	            this.config.ctx.lineTo(i * this.config.scale, this.canvas.height);
+	            this.config.ctx.closePath();
+	            this.config.ctx.stroke();
+	            this.config.ctx.beginPath();
+	            this.config.ctx.moveTo(0, i * this.config.scale);
+	            this.config.ctx.lineTo(this.canvas.height, i * this.config.scale);
+	            this.config.ctx.closePath();
+	            this.config.ctx.stroke();
+	        }
+	    };
+	    Sprite.prototype.preview = function (once) {
+	        for (var i = 0; i < this.config.size; i++) {
+	            for (var j = 0; j < this.config.size; j++) {
+	                if (this.sprite[i][j].empty) {
+	                    continue;
+	                }
+	                this.config.ctxP.beginPath();
+	                this.config.ctxP.fillStyle = this.sprite[i][j].rgba();
+	                this.config.ctxP.fillRect(i, j, 1, 1);
+	                this.config.ctxP.closePath();
+	            }
+	        }
+	        if (!once) {
+	            var tile = this.config.ctxP.getImageData(0, 0, this.config.size, this.config.size);
+	            this.config.ctxP.putImageData(tile, this.config.size, 0);
+	            this.config.ctxP.putImageData(tile, this.config.size * 2, 0);
+	            this.config.ctxP.putImageData(tile, this.config.size * 2, this.config.size);
+	            this.config.ctxP.putImageData(tile, this.config.size * 2, this.config.size * 2);
+	            this.config.ctxP.putImageData(tile, 0, this.config.size);
+	            this.config.ctxP.putImageData(tile, 0, this.config.size * 2);
+	            this.config.ctxP.putImageData(tile, this.config.size, this.config.size);
+	            this.config.ctxP.putImageData(tile, this.config.size, this.config.size * 2);
+	        }
+	    };
+	    Sprite.prototype.render = function () {
+	        for (var i = 0; i < this.config.size; i++) {
+	            for (var j = 0; j < this.config.size; j++) {
+	                if (this.sprite[i][j].empty) {
+	                    continue;
+	                }
+	                this.config.ctx.beginPath();
+	                this.config.ctx.fillStyle = this.sprite[i][j].rgba();
+	                this.config.ctx.fillRect(i * this.config.scale, j * this.config.scale, this.config.scale, this.config.scale);
+	                this.config.ctx.closePath();
+	            }
+	        }
+	    };
+	    Sprite.prototype.startDrawing = function () {
+	        this.drawing = true;
+	        this.touching = '';
+	    };
+	    Sprite.prototype.stopDrawing = function () {
+	        this.drawing = false;
+	    };
+	    return Sprite;
+	}());
+	exports.__esModule = true;
+	exports["default"] = Sprite;
+
+
+/***/ },
+/* 8 */
+/*!**********************!*\
+  !*** ./src/enums.ts ***!
+  \**********************/
+/***/ function(module, exports) {
+
+	"use strict";
+	(function (scaleSize) {
+	    scaleSize[scaleSize["Original"] = 1] = "Original";
+	    scaleSize[scaleSize["Small"] = 8] = "Small";
+	    scaleSize[scaleSize["Medium"] = 16] = "Medium";
+	    scaleSize[scaleSize["Large"] = 24] = "Large";
+	})(exports.scaleSize || (exports.scaleSize = {}));
+	var scaleSize = exports.scaleSize;
+	(function (tileSize) {
+	    tileSize[tileSize["Small"] = 16] = "Small";
+	    tileSize[tileSize["Medium"] = 32] = "Medium";
+	    tileSize[tileSize["Large"] = 64] = "Large";
+	})(exports.tileSize || (exports.tileSize = {}));
+	var tileSize = exports.tileSize;
+
+
+/***/ },
+/* 9 */
+/*!**********************!*\
+  !*** ./src/Pixel.ts ***!
+  \**********************/
+/***/ function(module, exports) {
+
+	"use strict";
+	function clamp(n, min, max) {
+	    return Math.round(n < min ? min : n > max ? max : n);
+	}
+	var Pixel = (function () {
+	    function Pixel() {
+	        this.color = {
+	            r: 0,
+	            g: 0,
+	            b: 0,
+	            a: 0
+	        };
+	        this.empty = true;
+	    }
+	    Pixel.prototype._combine = function (color) {
+	        this.color = {
+	            r: clamp(this.color.r + ((this.color.r - color.r) * color.a * -1), 0, 255),
+	            g: clamp(this.color.g + ((this.color.g - color.g) * color.a * -1), 0, 255),
+	            b: clamp(this.color.b + ((this.color.b - color.b) * color.a * -1), 0, 255),
+	            a: clamp(this.color.a + color.a, 0, 1)
+	        };
+	    };
+	    Pixel.prototype._vary = function (color) {
+	        this.color = {
+	            r: clamp(color.r + Math.round(Math.random() * 64 - 32), 0, 255),
+	            g: clamp(color.g + Math.round(Math.random() * 64 - 32), 0, 255),
+	            b: clamp(color.b + Math.round(Math.random() * 64 - 32), 0, 255),
+	            a: color.a
+	        };
+	    };
+	    Pixel.prototype.r = function () {
+	        return this.color.r;
+	    };
+	    Pixel.prototype.g = function () {
+	        return this.color.g;
+	    };
+	    Pixel.prototype.b = function () {
+	        return this.color.b;
+	    };
+	    Pixel.prototype.a = function () {
+	        return this.color.a;
+	    };
+	    Pixel.prototype.rgba = function () {
+	        return 'rgba(' + this.color.r + ', ' + this.color.g + ', ' + this.color.b + ',' + this.color.a + ')';
+	    };
+	    Pixel.prototype.setColor = function (color, vary) {
+	        if (color.a < 1 && !this.empty) {
+	            this._combine(color);
+	        }
+	        else if (vary) {
+	            this._vary(color);
+	        }
+	        else {
+	            this.color = {
+	                r: color.r,
+	                g: color.g,
+	                b: color.b,
+	                a: color.a
+	            };
+	        }
+	        if (this.empty) {
+	            this.empty = false;
+	        }
+	    };
+	    return Pixel;
+	}());
+	exports.__esModule = true;
+	exports["default"] = Pixel;
+
+
+/***/ },
+/* 10 */
 /*!******************************!*\
   !*** ./~/ractive/ractive.js ***!
   \******************************/
@@ -17010,156 +17251,6 @@
 	
 	}));
 	//# sourceMappingURL=ractive.js.map
-
-
-/***/ },
-/* 8 */,
-/* 9 */
-/*!**********************!*\
-  !*** ./src/enums.ts ***!
-  \**********************/
-/***/ function(module, exports) {
-
-	"use strict";
-	(function (scaleSize) {
-	    scaleSize[scaleSize["Original"] = 1] = "Original";
-	    scaleSize[scaleSize["Small"] = 8] = "Small";
-	    scaleSize[scaleSize["Medium"] = 16] = "Medium";
-	    scaleSize[scaleSize["Large"] = 24] = "Large";
-	})(exports.scaleSize || (exports.scaleSize = {}));
-	var scaleSize = exports.scaleSize;
-	(function (tileSize) {
-	    tileSize[tileSize["Small"] = 16] = "Small";
-	    tileSize[tileSize["Medium"] = 32] = "Medium";
-	    tileSize[tileSize["Large"] = 64] = "Large";
-	})(exports.tileSize || (exports.tileSize = {}));
-	var tileSize = exports.tileSize;
-
-
-/***/ },
-/* 10 */
-/*!***********************!*\
-  !*** ./src/Sprite.ts ***!
-  \***********************/
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	var enums_ts_1 = __webpack_require__(/*! ./enums.ts */ 9);
-	function rgba(color) {
-	    return 'rgba(' + color.r + ', ' + color.g + ', ' + color.b + ',' + color.a + ')';
-	}
-	function clamp(n, min, max) {
-	    return n < min ? min : n > max ? max : n;
-	}
-	var Sprite = (function () {
-	    function Sprite(canvas, config) {
-	        this.canvas = canvas;
-	        this.config = config;
-	        this.sprite = [];
-	        for (var i = 0; i < enums_ts_1.tileSize.Large; i++) {
-	            var columns = [];
-	            for (var j = 0; j < enums_ts_1.tileSize.Large; j++) {
-	                columns.push({
-	                    r: 128,
-	                    g: 128,
-	                    b: 128,
-	                    a: 0
-	                });
-	            }
-	            this.sprite.push(columns);
-	        }
-	    }
-	    Sprite.prototype._draw = function (x, y) {
-	        if (typeof this.sprite[x] !== 'undefined' && typeof this.sprite[x][y] !== 'undefined') {
-	            var rVary = 0;
-	            var gVary = 0;
-	            var bVary = 0;
-	            if (this.config.colorVary) {
-	                rVary = clamp(Math.round(Math.random() * 64 - 32), 0, 255);
-	                gVary = clamp(Math.round(Math.random() * 64 - 32), 0, 255);
-	                bVary = clamp(Math.round(Math.random() * 64 - 32), 0, 255);
-	            }
-	            this.sprite[x][y] = {
-	                r: this.config.color.r + rVary,
-	                g: this.config.color.g + gVary,
-	                b: this.config.color.b + bVary,
-	                a: this.config.color.a
-	            };
-	        }
-	    };
-	    Sprite.prototype._neighbours = function (x, y) {
-	        var neighbours = [];
-	        neighbours.push({ x: x - 1, y: y });
-	        neighbours.push({ x: x + 1, y: y });
-	        neighbours.push({ x: x, y: y - 1 });
-	        neighbours.push({ x: x, y: y + 1 });
-	        return neighbours;
-	    };
-	    Sprite.prototype.draw = function (x, y) {
-	        var _this = this;
-	        var neighbours = [{ x: x, y: y }];
-	        for (var i = 1; i <= this.config.brushSize; i++) {
-	            if (i < this.config.brushSize) {
-	                neighbours.forEach(function (neighbour) {
-	                    neighbours = neighbours.concat(_this._neighbours(neighbour.x, neighbour.y));
-	                });
-	            }
-	        }
-	        neighbours.forEach(function (neighbour) {
-	            _this._draw(neighbour.x, neighbour.y);
-	        });
-	    };
-	    Sprite.prototype.grid = function () {
-	        this.config.ctx.strokeStyle = rgba({ r: 128, g: 128, b: 128, a: 0.25 });
-	        this.config.ctx.lineWidth = 1;
-	        for (var i = 0; i <= this.config.size; i++) {
-	            this.config.ctx.beginPath();
-	            this.config.ctx.moveTo(i * this.config.scale, 0);
-	            this.config.ctx.lineTo(i * this.config.scale, this.canvas.height);
-	            this.config.ctx.closePath();
-	            this.config.ctx.stroke();
-	            this.config.ctx.beginPath();
-	            this.config.ctx.moveTo(0, i * this.config.scale);
-	            this.config.ctx.lineTo(this.canvas.height, i * this.config.scale);
-	            this.config.ctx.closePath();
-	            this.config.ctx.stroke();
-	        }
-	    };
-	    Sprite.prototype.preview = function (once) {
-	        for (var i = 0; i < this.config.size; i++) {
-	            for (var j = 0; j < this.config.size; j++) {
-	                this.config.ctxP.beginPath();
-	                this.config.ctxP.fillStyle = rgba(this.sprite[i][j]);
-	                this.config.ctxP.fillRect(i, j, 1, 1);
-	                this.config.ctxP.closePath();
-	            }
-	        }
-	        if (!once) {
-	            var tile = this.config.ctxP.getImageData(0, 0, this.config.size, this.config.size);
-	            this.config.ctxP.putImageData(tile, this.config.size, 0);
-	            this.config.ctxP.putImageData(tile, this.config.size * 2, 0);
-	            this.config.ctxP.putImageData(tile, this.config.size * 2, this.config.size);
-	            this.config.ctxP.putImageData(tile, this.config.size * 2, this.config.size * 2);
-	            this.config.ctxP.putImageData(tile, 0, this.config.size);
-	            this.config.ctxP.putImageData(tile, 0, this.config.size * 2);
-	            this.config.ctxP.putImageData(tile, this.config.size, this.config.size);
-	            this.config.ctxP.putImageData(tile, this.config.size, this.config.size * 2);
-	        }
-	    };
-	    Sprite.prototype.render = function () {
-	        for (var i = 0; i < this.config.size; i++) {
-	            for (var j = 0; j < this.config.size; j++) {
-	                this.config.ctx.beginPath();
-	                this.config.ctx.fillStyle = rgba(this.sprite[i][j]);
-	                this.config.ctx.fillRect(i * this.config.scale, j * this.config.scale, this.config.scale, this.config.scale);
-	                this.config.ctx.closePath();
-	            }
-	        }
-	    };
-	    return Sprite;
-	}());
-	exports.__esModule = true;
-	exports["default"] = Sprite;
 
 
 /***/ }
