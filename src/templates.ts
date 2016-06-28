@@ -1,19 +1,19 @@
-const checkbox: string = '' +
-	'		<label for="{{id}}" class="checkbox">\n' +
-	'			<input type="checkbox" id="{{id}}" checked="{{selectedValue}}"> {{title}}\n' +
-	'		</label>\n';
+const checkbox: string = `
+		<label for="{{id}}" class="checkbox">
+			<input type="checkbox" id="{{id}}" checked="{{selectedValue}}"> {{title}}
+		</label>`;
 
-const dropdown: string = '' +
-	'		<label for="{{id}}">{{title}}</label>\n' +
-	'		<select id="{{id}}" value="{{selectedValue}}" >\n' +
-	'			{{#options }}\n' +
-	'			<option value={{this.value}}>{{this.label}}</option>\n' +
-	'			{{/options}}\n' +
-	'		</select>\n';
+const dropdown: string = `
+		<label for="{{id}}">{{title}}</label>
+		<select id="{{id}}" value="{{selectedValue}}" >
+			{{#options }}
+			<option value={{this.value}}>{{this.label}}</option>
+			{{/options}}
+		</select>`;
 
-const slider: string = '' +
-	'		<label for="{{id}}">{{title}}</label>\n' +
-	'		<input type="range" id="{{id}}" min="{{min}}" max="{{max}}" value={{selectedValue}} />\n';
+const slider: string = `
+		<label for="{{id}}">{{title}}</label>
+		<input type="range" id="{{id}}" min="{{min}}" max="{{max}}" value={{selectedValue}} />`;
 
 const templates = {
 	checkbox: checkbox,

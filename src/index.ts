@@ -58,7 +58,18 @@ resetCanvas();
 
 const color = new Ractive({
 	el: '#color',
-	template: '<div style="background-color:rgba({{red}},{{green}},{{blue}},{{alpha}})"></div>',
+	template: 'Selected Color <div style="background-color:rgba({{red}},{{green}},{{blue}},{{alpha}})"></div>',
+	data: {
+		red: config.color.r,
+		green: config.color.g,
+		blue: config.color.b,
+		alpha: config.color.a,
+	}
+});
+
+const eyeDropper = new Ractive({
+	el: '#eyeDropper',
+	template: 'Eye Dropper (e)<div style="background-color:rgba({{red}},{{green}},{{blue}},{{alpha}})"></div>',
 	data: {
 		red: config.color.r,
 		green: config.color.g,
@@ -91,7 +102,7 @@ options.push({
 	cb: function(value, ractive) {
 		ractive.set('title', 'Red (' + value + ')');
 		color.set('red', value);
-		config.color.r = value;
+		config.color.r = parseInt(value, 10);
 	},
 });
 
@@ -102,7 +113,7 @@ options.push({
 	cb: function(value, ractive) {
 		ractive.set('title', 'Green (' + value + ')');
 		color.set('green', value);
-		config.color.g = value;
+		config.color.g = parseInt(value, 10);
 	},
 });
 
@@ -113,7 +124,7 @@ options.push({
 	cb: function(value, ractive) {
 		ractive.set('title', 'Blue (' + value + ')');
 		color.set('blue', value);
-		config.color.b = value;
+		config.color.b = parseInt(value, 10);
 	},
 });
 
@@ -129,17 +140,17 @@ options.push({
 	},
 });
 
-options.push({
-	id: 'brush-size',
-	template: templates.slider,
-	selected: config.brushSize.toString(),
-	min: '1',
-	max: '5',
-	cb: function(value, ractive) {
-		ractive.set('title', 'Brush Size (' + value + ')');
-		config.brushSize = value;
-	}
-});
+// options.push({
+// 	id: 'brush-size',
+// 	template: templates.slider,
+// 	selected: config.brushSize.toString(),
+// 	min: '1',
+// 	max: '5',
+// 	cb: function(value, ractive) {
+// 		ractive.set('title', 'Brush Size (' + value + ')');
+// 		config.brushSize = parseInt(value, 10);;
+// 	}
+// });
 
 options.push({
 	id: 'color-variation',
@@ -288,8 +299,12 @@ function update() {
 
 requestAnimationFrame(update);
 
-function draw() {
-	sprite.draw(Math.floor(mouse.x / config.scale), Math.floor(mouse.y / config.scale));
+function getX() {
+	return Math.floor(mouse.x / config.scale);
+}
+
+function getY() {
+	return Math.floor(mouse.y / config.scale);
 }
 
 function setMouse(mouseEvent: MouseEvent) {
@@ -300,25 +315,39 @@ function setMouse(mouseEvent: MouseEvent) {
 	};
 }
 
-var drawing = false;
-
 html.canvas.onmousedown = function(mouseEvent: MouseEvent) {
 	setMouse(mouseEvent);
-	drawing = true;
-	draw();
+	sprite.startDrawing();
+	sprite.draw(getX(), getY());
 };
 
 html.canvas.onmousemove = function(mouseEvent: MouseEvent) {
 	setMouse(mouseEvent);
-	if (drawing) {
-		draw();
+	if (sprite.drawing) {
+		sprite.draw(getX(), getY());
+	} else {
+		const c = sprite.eyeDropper(getX(), getY());
+		eyeDropper.set('red', c.r);
+		eyeDropper.set('green', c.g);
+		eyeDropper.set('blue', c.b);
+		eyeDropper.set('alpha', c.a);
 	}
 };
 
 html.canvas.onmouseup = function(event) {
-	drawing = false;
+	sprite.stopDrawing();
 };
 
 html.canvas.onmouseleave = function(event) {
-	drawing = false;
+	sprite.stopDrawing();
 };
+
+document.addEventListener('keydown', function(event) {
+	if (event.key === 'e') {
+		const c = sprite.eyeDropper(getX(), getY());
+		_options['red'].set('selectedValue', c.r);
+		_options['green'].set('selectedValue', c.g);
+		_options['blue'].set('selectedValue', c.b);
+		_options['alpha'].set('selectedValue', c.a * 100);
+	}
+});
