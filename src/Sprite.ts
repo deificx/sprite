@@ -38,16 +38,30 @@ export default class Sprite {
 			this.touching !== 'x'+x+'y'+y) {
 			this.touching = 'x'+x+'y'+y;
 			this.sprite[x][y].setColor(this.config.color, this.config.colorVary);
-			console.log('coloring', x, y);
-			console.log('r', this.config.color.r, this.sprite[x][y].r());
-			console.log('g', this.config.color.g, this.sprite[x][y].g());
-			console.log('b', this.config.color.b, this.sprite[x][y].b());
-			console.log('a', this.config.color.a, this.sprite[x][y].a());
 		}
 	}
 
 	draw(x: number, y: number) {
 		this._draw(x, y);
+	}
+
+	eyeDropper(x: number, y: number): RGBA {
+		if (typeof this.sprite[x] !== 'undefined' &&
+			typeof this.sprite[x][y] !== 'undefined' &&
+			!this.sprite[x][y].empty) {
+			return {
+				r: this.sprite[x][y].r(),
+				g: this.sprite[x][y].g(),
+				b: this.sprite[x][y].b(),
+				a: this.sprite[x][y].a(),
+			};
+		}
+		return {
+			r: this.config.color.r,
+			g: this.config.color.g,
+			b: this.config.color.b,
+			a: this.config.color.a,
+		};
 	}
 
 	grid() {

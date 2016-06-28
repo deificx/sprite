@@ -21,7 +21,6 @@ export default class Pixel {
 	}
 
 	_combine(color: RGBA) {
-		console.log('_combine');
 		this.color = {
 			r: clamp(this.color.r + ((this.color.r - color.r) * color.a * -1), 0, 255),
 			g: clamp(this.color.g + ((this.color.g - color.g) * color.a * -1), 0, 255),
@@ -31,7 +30,6 @@ export default class Pixel {
 	}
 
 	_vary(color: RGBA) {
-		console.log('_combine');
 		this.color = {
 			r: clamp(color.r + Math.round(Math.random() * 64 - 32), 0, 255),
 			g: clamp(color.g + Math.round(Math.random() * 64 - 32), 0, 255),
