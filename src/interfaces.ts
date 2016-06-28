@@ -3,6 +3,7 @@ export interface RGBA {
 	g?: number,
 	b?: number,
 	a?: number,
+	empty?: boolean,
 }
 
 export interface Configuration {

@@ -7,82 +7,51 @@ import {
 	tileSize,
 } from './enums.ts';
 
-function rgba(color: RGBA) {
-	return 'rgba(' + color.r + ', ' + color.g + ', ' + color.b + ',' + color.a + ')';
-}
-
-function clamp(n, min, max) {
-	return n < min ? min : n > max ? max : n;
-}
+import Pixel from './Pixel.ts';
 
 export default class Sprite {
 	canvas: HTMLCanvasElement;
 	config: Configuration;
-	sprite: Array<Array<RGBA>>;
+	drawing: boolean;
+	sprite: Array<Array<Pixel>>;
+	touching: string;
 
 	constructor(canvas: HTMLCanvasElement, config: Configuration) {
 		this.canvas = canvas;
 		this.config = config;
+		this.drawing = false;
 		this.sprite = [];
+		this.touching = '';
 
 		for (var i = 0; i < tileSize.Large; i++) {
 			var columns = [];
 			for (var j = 0; j < tileSize.Large; j++) {
-				columns.push({
-					r: 128,
-					g: 128,
-					b: 128,
-					a: 0,
-				});
+				columns.push(new Pixel());
 			}
 			this.sprite.push(columns);
 		}
 	}
 
 	_draw(x: number, y: number) {
-		if (typeof this.sprite[x] !== 'undefined' && typeof this.sprite[x][y] !== 'undefined') {
-			let rVary = 0;
-			let gVary = 0;
-			let bVary = 0;
-			if (this.config.colorVary) {
-				rVary = clamp(Math.round(Math.random() * 64 - 32), 0, 255);
-				gVary = clamp(Math.round(Math.random() * 64 - 32), 0, 255);
-				bVary = clamp(Math.round(Math.random() * 64 - 32), 0, 255);
-			}
-			this.sprite[x][y] = {
-				r: this.config.color.r + rVary,
-				g: this.config.color.g + gVary,
-				b: this.config.color.b + bVary,
-				a: this.config.color.a,
-			};
+		if (typeof this.sprite[x] !== 'undefined' &&
+			typeof this.sprite[x][y] !== 'undefined' &&
+			this.touching !== 'x'+x+'y'+y) {
+			this.touching = 'x'+x+'y'+y;
+			this.sprite[x][y].setColor(this.config.color, this.config.colorVary);
+			console.log('coloring', x, y);
+			console.log('r', this.config.color.r, this.sprite[x][y].r());
+			console.log('g', this.config.color.g, this.sprite[x][y].g());
+			console.log('b', this.config.color.b, this.sprite[x][y].b());
+			console.log('a', this.config.color.a, this.sprite[x][y].a());
 		}
-	}
-
-	_neighbours(x: number, y: number) {
-		const neighbours = [];
-		neighbours.push({ x: x - 1, y: y });
-		neighbours.push({ x: x + 1, y: y });
-		neighbours.push({ x: x, y: y - 1 });
-		neighbours.push({ x: x, y: y + 1 });
-		return neighbours;
 	}
 
 	draw(x: number, y: number) {
-		let neighbours = [{ x, y }];
-		for (let i = 1; i <= this.config.brushSize; i++) {
-			if (i < this.config.brushSize) {
-				neighbours.forEach((neighbour) => {
-					neighbours = neighbours.concat(this._neighbours(neighbour.x, neighbour.y));
-				});
-			}
-		}
-		neighbours.forEach((neighbour) => {
-			this._draw(neighbour.x, neighbour.y);
-		});
+		this._draw(x, y);
 	}
 
 	grid() {
-		this.config.ctx.strokeStyle = rgba({ r: 128, g: 128, b: 128, a: 0.25 });
+		this.config.ctx.strokeStyle = 'rgba(128, 128, 128, 0.25)';
 		this.config.ctx.lineWidth = 1;
 		for (var i = 0; i <= this.config.size; i++) {
 			this.config.ctx.beginPath();
@@ -101,8 +70,11 @@ export default class Sprite {
 	preview(once: boolean) {
 		for (let i = 0; i < this.config.size; i++) {
 			for (let j = 0; j < this.config.size; j++) {
+				if (this.sprite[i][j].empty) {
+					continue;
+				}
 				this.config.ctxP.beginPath();
-				this.config.ctxP.fillStyle = rgba(this.sprite[i][j]);
+				this.config.ctxP.fillStyle = this.sprite[i][j].rgba();
 				this.config.ctxP.fillRect(i, j, 1, 1);
 				this.config.ctxP.closePath();
 			}
@@ -123,11 +95,23 @@ export default class Sprite {
 	render() {
 		for (var i = 0; i < this.config.size; i++) {
 			for (var j = 0; j < this.config.size; j++) {
+				if (this.sprite[i][j].empty) {
+					continue;
+				}
 				this.config.ctx.beginPath();
-				this.config.ctx.fillStyle = rgba(this.sprite[i][j]);
+				this.config.ctx.fillStyle = this.sprite[i][j].rgba();
 				this.config.ctx.fillRect(i * this.config.scale, j * this.config.scale, this.config.scale, this.config.scale);
 				this.config.ctx.closePath();
 			}
 		}
+	}
+
+	startDrawing() {
+		this.drawing = true;
+		this.touching = '';
+	}
+
+	stopDrawing() {
+		this.drawing = false;
 	}
 }

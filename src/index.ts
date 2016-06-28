@@ -91,7 +91,7 @@ options.push({
 	cb: function(value, ractive) {
 		ractive.set('title', 'Red (' + value + ')');
 		color.set('red', value);
-		config.color.r = value;
+		config.color.r = parseInt(value, 10);
 	},
 });
 
@@ -102,7 +102,7 @@ options.push({
 	cb: function(value, ractive) {
 		ractive.set('title', 'Green (' + value + ')');
 		color.set('green', value);
-		config.color.g = value;
+		config.color.g = parseInt(value, 10);
 	},
 });
 
@@ -113,7 +113,7 @@ options.push({
 	cb: function(value, ractive) {
 		ractive.set('title', 'Blue (' + value + ')');
 		color.set('blue', value);
-		config.color.b = value;
+		config.color.b = parseInt(value, 10);
 	},
 });
 
@@ -129,17 +129,17 @@ options.push({
 	},
 });
 
-options.push({
-	id: 'brush-size',
-	template: templates.slider,
-	selected: config.brushSize.toString(),
-	min: '1',
-	max: '5',
-	cb: function(value, ractive) {
-		ractive.set('title', 'Brush Size (' + value + ')');
-		config.brushSize = value;
-	}
-});
+// options.push({
+// 	id: 'brush-size',
+// 	template: templates.slider,
+// 	selected: config.brushSize.toString(),
+// 	min: '1',
+// 	max: '5',
+// 	cb: function(value, ractive) {
+// 		ractive.set('title', 'Brush Size (' + value + ')');
+// 		config.brushSize = parseInt(value, 10);;
+// 	}
+// });
 
 options.push({
 	id: 'color-variation',
@@ -300,25 +300,23 @@ function setMouse(mouseEvent: MouseEvent) {
 	};
 }
 
-var drawing = false;
-
 html.canvas.onmousedown = function(mouseEvent: MouseEvent) {
 	setMouse(mouseEvent);
-	drawing = true;
+	sprite.startDrawing();
 	draw();
 };
 
 html.canvas.onmousemove = function(mouseEvent: MouseEvent) {
 	setMouse(mouseEvent);
-	if (drawing) {
+	if (sprite.drawing) {
 		draw();
 	}
 };
 
 html.canvas.onmouseup = function(event) {
-	drawing = false;
+	sprite.stopDrawing();
 };
 
 html.canvas.onmouseleave = function(event) {
-	drawing = false;
+	sprite.stopDrawing();
 };
