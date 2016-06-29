@@ -25,7 +25,7 @@ export default class Pixel {
 			r: clamp(this.color.r + ((this.color.r - color.r) * color.a * -1), 0, 255),
 			g: clamp(this.color.g + ((this.color.g - color.g) * color.a * -1), 0, 255),
 			b: clamp(this.color.b + ((this.color.b - color.b) * color.a * -1), 0, 255),
-			a: clamp(this.color.a + color.a, 0, 1),
+			a: parseInt(clamp(Math.round((this.color.a / color.a) * 100) / 100, 0, 100).toFixed(0), 10),
 		};
 	}
 
