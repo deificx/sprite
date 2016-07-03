@@ -17,7 +17,22 @@ export interface Configuration {
 	size: number,
 }
 
-export interface MousePos {
+export interface Coordinate {
 	x: number,
 	y: number,
+}
+
+export interface Option {
+	id: string,
+	template: string,
+	title?: string,
+	selected?: string,
+	min?: string,
+	max?: string,
+	options?: Array<{
+		label: string,
+		value: string,
+	}>,
+	cb?: Function,
+	handler?: Function,
 }

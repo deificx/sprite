@@ -15,6 +15,7 @@ A w.i.p. sprite editor.
 ![5](https://raw.githubusercontent.com/deificx/sprite/master/graphics/examples/5.png)
 ![6](https://raw.githubusercontent.com/deificx/sprite/master/graphics/examples/6.png)
 ![7](https://raw.githubusercontent.com/deificx/sprite/master/graphics/examples/7.png)
+![8](https://raw.githubusercontent.com/deificx/sprite/master/graphics/examples/8.png)
 
 ### Development
 
