@@ -6,6 +6,16 @@ A w.i.p. sprite editor.
 
 ![screenshot](https://raw.githubusercontent.com/deificx/sprite/master/graphics/screenshot.png)
 
+### Examples
+
+![1](https://raw.githubusercontent.com/deificx/sprite/master/graphics/examples/1.png)
+![2](https://raw.githubusercontent.com/deificx/sprite/master/graphics/examples/2.png)
+![3](https://raw.githubusercontent.com/deificx/sprite/master/graphics/examples/3.png)
+![4](https://raw.githubusercontent.com/deificx/sprite/master/graphics/examples/4.png)
+![5](https://raw.githubusercontent.com/deificx/sprite/master/graphics/examples/5.png)
+![6](https://raw.githubusercontent.com/deificx/sprite/master/graphics/examples/6.png)
+![7](https://raw.githubusercontent.com/deificx/sprite/master/graphics/examples/7.png)
+
 ### Development
 
 Developed with the following software and versions:
