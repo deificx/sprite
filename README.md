@@ -18,7 +18,7 @@ The predefined sizes are 16, 32 and 64 pixels.
 - Pixel Scale aka. Zoom
 - Save as PNG (download)
 
-### Examples
+## Examples
 
 ![1](https://raw.githubusercontent.com/deificx/sprite/master/graphics/examples/1.png)
 ![2](https://raw.githubusercontent.com/deificx/sprite/master/graphics/examples/2.png)
@@ -29,9 +29,9 @@ The predefined sizes are 16, 32 and 64 pixels.
 ![7](https://raw.githubusercontent.com/deificx/sprite/master/graphics/examples/7.png)
 ![8](https://raw.githubusercontent.com/deificx/sprite/master/graphics/examples/8.png)
 
-### Development
+## Development
 
-Developed with the following software and versions:
+### Developed with the following software and versions:
 
 - live-server 0.9.0
 - node v5.11.1
@@ -41,7 +41,7 @@ Developed with the following software and versions:
 - typings v1.3.0
 - webpack 1.13.1
 
-Get started:
+### Get started:
 
 ``` bash
 # install
