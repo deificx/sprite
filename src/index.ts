@@ -15,7 +15,8 @@ Ractive.DEBUG = false;
 
 import {
 	Configuration,
-	MousePos,
+	Coordinate,
+	Option,
 	RGBA,
 } from './interfaces.ts';
 
@@ -40,7 +41,7 @@ var config: Configuration = {
 	size: tileSize.Medium,
 };
 
-var mouse: MousePos = {
+var mouse: Coordinate = {
 	x: 0,
 	y: 0,
 };
@@ -77,20 +78,6 @@ const eyeDropper = new Ractive({
 		alpha: config.color.a,
 	}
 });
-
-interface Option {
-	id: string,
-	title?: string,
-	template: string,
-	selected: string,
-	min?: string,
-	max?: string,
-	options?: Array<{
-		label: string,
-		value: string,
-	}>,
-	cb: Function,
-}
 
 const options: Array<Option> = [];
 const _options: Object = {};
@@ -140,17 +127,17 @@ options.push({
 	},
 });
 
-// options.push({
-// 	id: 'brush-size',
-// 	template: templates.slider,
-// 	selected: config.brushSize.toString(),
-// 	min: '1',
-// 	max: '5',
-// 	cb: function(value, ractive) {
-// 		ractive.set('title', 'Brush Size (' + value + ')');
-// 		config.brushSize = parseInt(value, 10);;
-// 	}
-// });
+options.push({
+	id: 'brush-size',
+	template: templates.slider,
+	selected: config.brushSize.toString(),
+	min: '1',
+	max: '16',
+	cb: function(value, ractive) {
+		ractive.set('title', 'Brush Size (' + value + ')');
+		config.brushSize = parseInt(value, 10);;
+	}
+});
 
 options.push({
 	id: 'color-variation',
@@ -226,6 +213,38 @@ options.push({
 	},
 });
 
+options.push({
+	id: 'new',
+	title: 'New',
+	template: templates.button,
+	handler: function() {
+		sprite = new Sprite(html.canvas, config);
+	}
+});
+
+options.push({
+	id: 'save',
+	title: 'Save',
+	template: templates.button,
+	handler: function() {
+		html.preview.width = config.size;
+		html.preview.height = config.size;
+		sprite.preview(true);
+		var image = html.preview.toDataURL('image/png').replace('image/png', 'image/octet-stream');
+		location.href = image;
+		html.preview.width = config.size * 3;
+		html.preview.height = config.size * 3;
+	}
+});
+
+options.push({
+	id: 'link',
+	template: `
+		<p>
+			<a href="https://github.com/deificx/sprite" target="_blank" rel="noopener noreferrer">project on github</a>
+		</p>`,
+});
+
 options.forEach((option) => {
 	const div = <HTMLDivElement>document.createElement('div');
 	div.id = 'option-' + option.id;
@@ -242,45 +261,40 @@ options.forEach((option) => {
 			options: option.options || [],
 		}
 	});
-	_options[option.id].set('selectedValue', option.selected);
-	_options[option.id].observe('selectedValue', function(newValue) {
-		option.cb(newValue, _options[option.id]);
-	});
+	if (option.selected) {
+		_options[option.id].set('selectedValue', option.selected);
+	}
+	if (option.cb) {
+		_options[option.id].observe('selectedValue', function(newValue) {
+			option.cb(newValue, _options[option.id]);
+		});
+	}
+	if (option.handler) {
+		_options[option.id].on('handle', function() {
+			option.handler();
+		});
+	}
 });
-
-var newOption = <HTMLButtonElement>document.createElement('button');
-newOption.id = 'option-new';
-newOption.innerHTML = 'New';
-newOption.onclick = function() {
-	sprite = new Sprite(html.canvas, config);
-}
-
-html.toolbar.appendChild(newOption);
-
-var saveOption = <HTMLButtonElement>document.createElement('button');
-saveOption.id = 'option-save';
-saveOption.innerHTML = 'Download';
-saveOption.onclick = function() {
-	html.preview.width = config.size;
-	html.preview.height = config.size;
-	sprite.preview(true);
-	var image = html.preview.toDataURL('image/png').replace('image/png', 'image/octet-stream');
-	location.href = image;
-	html.preview.width = config.size * 3;
-	html.preview.height = config.size * 3;
-}
-
-html.toolbar.appendChild(saveOption);
-
-var link = <HTMLParagraphElement>document.createElement('p');
-link.innerHTML = '<a href="https://github.com/deificx/sprite">project on github</a>';
-html.toolbar.appendChild(link);
 
 function renderBrush() {
 	config.ctx.beginPath();
-	config.ctx.strokeStyle = '#0f0';
-	config.ctx.lineWidth = 2;
+	config.ctx.strokeStyle = '#000';
+	config.ctx.lineWidth = 1;
 	config.ctx.arc(mouse.x, mouse.y, (config.brushSize * config.scale / 2), 0, Math.PI * 2);
+	config.ctx.stroke();
+	config.ctx.closePath();
+	config.ctx.beginPath();
+	config.ctx.rect(mouse.x - 1, mouse.y - 1, 3, 3);
+	config.ctx.stroke();
+	config.ctx.closePath();
+	config.ctx.beginPath();
+	config.ctx.strokeStyle = '#fff';
+	config.ctx.lineWidth = 1;
+	config.ctx.arc(mouse.x, mouse.y, (config.brushSize * config.scale / 2) - 1, 0, Math.PI * 2);
+	config.ctx.stroke();
+	config.ctx.closePath();
+	config.ctx.beginPath();
+	config.ctx.rect(mouse.x, mouse.y, 1, 1);
 	config.ctx.stroke();
 	config.ctx.closePath();
 }
@@ -315,16 +329,36 @@ function setMouse(mouseEvent: MouseEvent) {
 	};
 }
 
+function insideBrush(x: number, y: number, radius: number): Array<Coordinate> {
+	var coords = [];
+	for (var i = x - radius; i < x + radius; i++) {
+		for (var j = y - radius; j < y + radius; j++) {
+			if (Math.pow(i - x, 2) + Math.pow(j - y, 2) < radius) {
+				coords.push({x:i, y:j});
+			}
+		}
+	}
+	return coords;
+}
+
+function draw() {
+	if (config.brushSize === 1) {
+		sprite.draw(getX(), getY());
+	} else {
+		sprite.brush(getX(), getY(), insideBrush(getX(), getY(), config.brushSize));
+	}
+}
+
 html.canvas.onmousedown = function(mouseEvent: MouseEvent) {
 	setMouse(mouseEvent);
 	sprite.startDrawing();
-	sprite.draw(getX(), getY());
+	draw();
 };
 
 html.canvas.onmousemove = function(mouseEvent: MouseEvent) {
 	setMouse(mouseEvent);
 	if (sprite.drawing) {
-		sprite.draw(getX(), getY());
+		draw();
 	} else {
 		const c = sprite.eyeDropper(getX(), getY());
 		eyeDropper.set('red', c.r);

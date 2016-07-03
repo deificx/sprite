@@ -1,5 +1,6 @@
 import {
 	Configuration,
+	Coordinate,
 	RGBA,
 } from './interfaces.ts'; 
 
@@ -36,13 +37,20 @@ export default class Sprite {
 		if (typeof this.sprite[x] !== 'undefined' &&
 			typeof this.sprite[x][y] !== 'undefined' &&
 			this.touching !== 'x'+x+'y'+y) {
-			this.touching = 'x'+x+'y'+y;
 			this.sprite[x][y].setColor(this.config.color, this.config.colorVary);
 		}
 	}
 
 	draw(x: number, y: number) {
 		this._draw(x, y);
+		this.touching = 'x'+x+'y'+y;
+	}
+
+	brush(x: number, y: number, coords: Array<Coordinate>) {
+		coords.forEach((coord) => {
+			this._draw(coord.x, coord.y);
+		});
+		this.touching = 'x'+x+'y'+y;
 	}
 
 	eyeDropper(x: number, y: number): RGBA {
@@ -110,6 +118,10 @@ export default class Sprite {
 		for (var i = 0; i < this.config.size; i++) {
 			for (var j = 0; j < this.config.size; j++) {
 				if (this.sprite[i][j].empty) {
+					this.config.ctx.beginPath();
+					this.config.ctx.fillStyle = '#888';
+					this.config.ctx.fillRect(i * this.config.scale + this.config.scale / 2, j * this.config.scale + this.config.scale / 2, 1, 1);
+					this.config.ctx.closePath();
 					continue;
 				}
 				this.config.ctx.beginPath();

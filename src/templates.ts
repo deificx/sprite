@@ -1,3 +1,8 @@
+const button: string = `
+		<button on-click='handle'>
+			{{title}}
+		</button>`;
+
 const checkbox: string = `
 		<label for="{{id}}" class="checkbox">
 			<input type="checkbox" id="{{id}}" checked="{{selectedValue}}"> {{title}}
@@ -16,6 +21,7 @@ const slider: string = `
 		<input type="range" id="{{id}}" min="{{min}}" max="{{max}}" value={{selectedValue}} />`;
 
 const templates = {
+	button: button,
 	checkbox: checkbox,
 	dropdown: dropdown,
 	slider: slider,
