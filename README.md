@@ -1,10 +1,21 @@
 # Sprite
 
-A w.i.p. sprite editor.
-
-[Try it](https://deificx.github.io/sprite/)
+A basic drawing interface to create small square graphics often referred to as (Sprites)[https://en.wikipedia.org/wiki/Sprite_(computer_graphics)].
+The predefined sizes are 16, 32 and 64 pixels.
+[Try it](https://deificx.github.io/sprite/).
 
 ![screenshot](https://raw.githubusercontent.com/deificx/sprite/master/graphics/screenshot.png)
+
+## Features
+
+- 3x3 tile preview
+- Eye Dropper tool (Hover a color and click 'e' on keyboard to grab)
+- RGBA Color sliders
+- Brush size
+- Color Randomizer toggle
+- Grid toggle
+- Pixel Scale aka. Zoom
+- Save as PNG (download)
 
 ### Examples
 
@@ -24,7 +35,10 @@ Developed with the following software and versions:
 - live-server 0.9.0
 - node v5.11.1
 - npm 3.8.6
+- ractive 0.7.3
+- typescript 1.8.10
 - typings v1.3.0
+- webpack 1.13.1
 
 Get started:
 
